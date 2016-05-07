@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bow.dao.permission.PermissionDao" >
+
+	<insert id="addPrevilege">
+		<selectKey keyProperty="id" order="BEFORE" resultType="long">
+			select nvl(max(id),0)+1 from hill_permission_rel
+		</selectKey>
+		insert into hill_permission_rel
+		  (id, operation_id, resource_id, owner_id, type)
+		values
+		  (
+		  	#{id}, 
+		  	#{permission.operationId}, 
+		  	#{permission.resourceId}, 
+		  	#{user.id}, 
+		  	2
+		  )
+	</insert>
+	
+	<insert id="addPermission">
+		<selectKey keyProperty="id" order="BEFORE" resultType="long">
+			select nvl(max(id),0)+1 from hill_permission_rel
+		</selectKey>
+		insert into hill_permission_rel
+		  (id, operation_id, resource_id, owner_id, type)
+		values
+		  (
+		  	#{id}, 
+		  	#{permission.operationId}, 
+		  	#{permission.resourceId}, 
+		  	#{duty.id}, 
+		  	1
+		  )
+	</insert>
+	
+	<select id="getPrevileges" parameterType="user" resultType="permission">
+		select t1.id,
+		       t1.operation_id as operationId,
+		       t1.resource_id  as resourceId,
+		       t1.type,
+		       t2.name         as resourceName,
+		       t3.name         as operationName
+		  from hill_permission_rel t1
+		  left join hill_resource t2
+		    on t1.resource_id = t2.id
+		  left join hill_operation t3
+		    on t1.operation_id = t3.id
+		  where t1.owner_id = #{id} 
+	</select>
+	
+	<select id="getPermissions" parameterType="duty" resultType="permission">
+		select t1.id,
+		       t1.operation_id as operationId,
+		       t1.resource_id  as resourceId,
+		       t1.type,
+		       t2.name         as resourceName,
+		       t3.name         as operationName
+		  from hill_permission_rel t1
+		  left join hill_resource t2
+		    on t1.resource_id = t2.id
+		  left join hill_operation t3
+		    on t1.operation_id = t3.id
+		  where t1.owner_id = #{id}
+	</select>
+	
+	<delete id="deletePermission" parameterType="permission">
+		delete from hill_permission_rel where id=#{id}
+	</delete>
+	
+	
+</mapper>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache name="es">
+
+<!-- ************************************************
+timeToIdleSeconds:
+    Sets the time to idle for an element before it expires.
+timeToLiveSeconds:
+    Sets the time to live for an element before it expires
+    A value of 0 means that and Element can live for infinity.
+eternal:
+    Sets whether elements are eternal. If eternal,  timeouts are ignored and the
+    element is never expired.
+    
+***************************************************** -->
+
+    <diskStore path="D:\work\hill\src\file"/>
+    
+    <cacheManagerEventListenerFactory class="com.bow.component.cache.CacheManagerEventListenerFactoryImpl"/> 
+    
+    <!-- 登录记录缓存 锁定10分钟 -->
+    <cache name="passwordRetryCache"
+           maxEntriesLocalHeap="2000"
+           eternal="false"
+           timeToIdleSeconds="3600"
+           timeToLiveSeconds="0"
+           overflowToDisk="false"
+           statistics="true">
+    </cache>
+
+    <cache name="authorizationCache"
+           maxEntriesLocalHeap="2000"
+           eternal="false"
+           timeToIdleSeconds="3600"
+           timeToLiveSeconds="0"
+           overflowToDisk="false"
+           statistics="true">
+    </cache>
+
+    <cache name="authenticationCache"
+           maxEntriesLocalHeap="2000"
+           eternal="false"
+           timeToIdleSeconds="3600"
+           timeToLiveSeconds="0"
+           overflowToDisk="false"
+           statistics="true">
+    </cache>
+
+<!-- 为session设置的缓存,CachingSessionDAO创建的 -->
+    <cache name="shiro-activeSessionCache"
+           maxEntriesLocalHeap="2000"
+           eternal="false"
+           timeToIdleSeconds="3600"
+           timeToLiveSeconds="0"
+           overflowToDisk="false"
+           statistics="true">
+    </cache>
+
+<!-- KickoutSessionControlFilter创建的缓存 -->
+    <cache name="shiro-kickout-session"
+           maxEntriesLocalHeap="2000"
+           eternal="false"
+           timeToIdleSeconds="3600"
+           timeToLiveSeconds="0"
+           overflowToDisk="false"
+           statistics="true">
+    </cache>
+    
+    <!-- 测试用cache -->
+    <cache name="test"
+           maxEntriesLocalHeap="20"
+           eternal="false"
+           timeToIdleSeconds="30"
+           timeToLiveSeconds="0"
+           overflowToDisk="false"
+           statistics="true">
+           <cacheEventListenerFactory class="com.bow.component.cache.CacheEventListenerFactoryImpl"/>
+    </cache>
+    
+    
+</ehcache>

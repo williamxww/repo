@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xsd:schema xmlns="http://bow.com/schema/hill"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+        targetNamespace="http://bow.com/schema/hill">
+
+        <xsd:element name="application" type="applicationType">
+        </xsd:element>
+        
+        <xsd:complexType name="applicationType">
+                <xsd:attribute name="id" type="xsd:string"></xsd:attribute>
+                <xsd:attribute name="name" type="xsd:string"></xsd:attribute>
+                <xsd:attribute name="version" type="xsd:string"></xsd:attribute>
+        </xsd:complexType>
+
+</xsd:schema>

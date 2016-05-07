@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:context="http://www.springframework.org/schema/context"
+		xmlns:mvc="http://www.springframework.org/schema/mvc"
+		xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd
+			http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.1.xsd
+			">
+	<!-- 默认的注解映射的支持 该标签会会自动注册DefaultAnnotationHandlerMapping与AnnotationMethodHandlerAdapter 下面已经有了 这个就注释掉
+	<mvc:annotation-driven /> -->		
+	
+	<!-- 此servlet对应的名称为 default 在web.xml中定义了其servlet-mapping 主要是为放行静态文件 -->
+	<mvc:default-servlet-handler/>
+	
+	<context:component-scan base-package="com.bow.controller" />
+	
+	<!-- 自动扫描controller包下所有标注为@Controller的类  
+	<context:component-scan base-package="com.bow.controller" use-default-filters="false">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+        <context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
+    </context:component-scan>
+    -->
+    
+	<!-- 自定义注解解析 -->
+	<mvc:annotation-driven>
+        <mvc:argument-resolvers>
+            <bean class="com.bow.component.annotation.CurrentUserMethodArgumentResolver"/>
+        </mvc:argument-resolvers>
+    </mvc:annotation-driven>
+    
+    <bean id="multipartResolver"  
+        class="org.springframework.web.multipart.commons.CommonsMultipartResolver" >
+        <property name="maxUploadSize">   
+            <value>104857600</value>   
+        </property>   
+        <property name="maxInMemorySize">   
+            <value>4096</value>   
+        </property>   
+    </bean>      
+	
+	<!-- 消息管理 -->
+	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">  
+        <property name="basename" value="i18n.messages" />  
+        <property name="useCodeAsDefaultMessage" value="true" />          
+    </bean> 
+    <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver"/>
+	
+	<!-- 视图解释类 -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/jsp/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+    
+    <!-- 拦截器 -->  
+    <mvc:interceptors>
+    	<bean id="stopWatchHandlerInterceptor" class="com.bow.component.interceptor.StopWatchHandlerInterceptor"/>
+      
+        <!-- 多个拦截器,顺序执行 -->  
+        <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+            <property name="paramName" value="lang" />
+        </bean>
+    </mvc:interceptors> 
+    
+    <!-- 静态资源映射 
+    <mvc:resources mapping="/static/**" location="/static/"/>
+    <mvc:resources mapping="/**" location="/"/>
+    -->
+    
+    
+	<!-- Forwards requests to the "/" resource to the "welcome" view -->
+	<mvc:view-controller path="/" view-name="hello"/>
+	
+	<!-- 此view会直接返回json到前台,传到modelAndView中的是名字jsonView因而还需要BeanNameViewResolver  -->
+	<bean name="jsonView" class="com.bow.component.common.JsonView"></bean>
+	<bean class="org.springframework.web.servlet.view.BeanNameViewResolver">  
+		<property name="order" value="1" />  
+	</bean> 
+	
+</beans>

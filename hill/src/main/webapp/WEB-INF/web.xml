@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.0" 
+	xmlns="http://java.sun.com/xml/ns/javaee" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+	http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+	
+  <display-name>hill</display-name>	
+  
+  <!-- spring configFile -->
+  <context-param>   
+      <param-name>contextConfigLocation</param-name>   
+      <param-value>
+      	classpath:conf/spring/applicationContext.xml,
+      	classpath:conf/spring/applicationContext-mybatis.xml,
+      	classpath:conf/spring/applicationContext-cache.xml,
+      	classpath:conf/spring/applicationContext-shiro.xml,
+      	classpath:conf/spring/applicationContext-activiti.xml
+      	
+      </param-value>   
+  </context-param>  
+  
+  <listener>
+      <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener> 
+  
+  <!-- handle encoding -->
+	<filter>
+	    <filter-name>characterEncodingFilter</filter-name>
+	    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+	    <init-param>
+	        <param-name>encoding</param-name>
+	        <param-value>UTF-8</param-value>
+	    </init-param>
+	</filter>
+	 
+	<filter-mapping>
+	    <filter-name>characterEncodingFilter</filter-name>
+	    <url-pattern>/*</url-pattern>
+	</filter-mapping>
+	
+	<!-- Spring MVC DispatcherServlet -->
+	<servlet>
+		<servlet-name>springServlet</servlet-name>
+		<servlet-class> org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>
+				classpath:conf/spring/applicationContext-springmvc.xml
+			</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>springServlet</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 不拦截静态文件 default servlet为tomcat默认 在spring-mvc.xml中引用到了  -->  
+	<servlet-mapping>  
+	    <servlet-name>default</servlet-name>
+	    <url-pattern>/static/*</url-pattern> 
+	    <url-pattern>*.js</url-pattern>
+	    <url-pattern>*.css</url-pattern>
+	    <url-pattern>*.html</url-pattern>
+	</servlet-mapping> 
+    
+    
+    
+    <!-- shiro 安全过滤器 --> 
+    <filter>
+        <filter-name>shiroFilter</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+        <async-supported>true</async-supported>
+        <init-param>
+            <param-name>targetFilterLifecycle</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+
+	<!-- 只有action才会用shiro拦截 -->
+    <filter-mapping>
+        <filter-name>shiroFilter</filter-name>
+        <url-pattern>*.action</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+    </filter-mapping>
+    
+    
+    <!-- dwr 使用polling和comet的方式 ,跨域安全:false  互动：ajax轮询和ajax长连接，此技术属于ajax长连接
+    	# 该技术功能点：
+    	# 在javascript函数中可以直接使用java代码
+    	# 在实现了消息推送(demo中已经实现)
+    	# 该技术较为陈旧，虽已测试OK但最好不要使用
+     -->
+     <!-- 
+    <servlet>  
+         <servlet-name>dwr-invoker</servlet-name>  
+         <servlet-class>uk.ltd.getahead.dwr.DWRServlet</servlet-class>  
+         <init-param>  
+          <param-name>debug</param-name>  
+          <param-value>true</param-value>  
+         </init-param> 
+         <init-param>  
+          <param-name>pollAndCometEnabled</param-name>  
+          <param-value>true</param-value>  
+         </init-param>
+         <init-param>
+             <param-name>crossDomainSessionSecurity</param-name>
+             <param-value>false</param-value>
+      	 </init-param>  
+         <load-on-startup>1</load-on-startup>        
+    </servlet>  
+    <servlet-mapping>  
+         <servlet-name>dwr-invoker</servlet-name>  
+         <url-pattern>/dwr/*</url-pattern>  
+    </servlet-mapping>
+     -->
+    
+    <!-- 业务 -->
+    <servlet>
+    	<servlet-name>initHillServlet</servlet-name>
+    	<servlet-class>com.bow.component.servlet.InitHillServlet</servlet-class>
+    	<load-on-startup>3</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+    	<servlet-name>initHillServlet</servlet-name>
+    	<url-pattern>/NEVERCOMEHERE</url-pattern>
+    </servlet-mapping>
+    
+    
+    <!-- ACTIVITI 
+    <filter>
+		<filter-name>UIFilter</filter-name>
+		<filter-class>org.activiti.explorer.filter.ExplorerFilter</filter-class>
+	</filter>
+  
+    <filter>
+        <filter-name>JSONPFilter</filter-name>
+        <filter-class>com.bow.component.filter.JsonpCallbackFilter</filter-class>
+    </filter>
+
+	<filter-mapping>
+		<filter-name>UIFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+  
+    <filter-mapping>
+        <filter-name>JSONPFilter</filter-name>
+        <url-pattern>/service/*</url-pattern>
+    </filter-mapping>
+    -->
+	<servlet>
+		<servlet-name>Vaadin Application Servlet</servlet-name>
+		<servlet-class>org.activiti.explorer.servlet.ExplorerApplicationServlet</servlet-class>
+		<init-param>
+			<param-name>widgetset</param-name>
+			<param-value>org.activiti.explorer.CustomWidgetset</param-value>
+		</init-param>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>Vaadin Application Servlet</servlet-name>
+		<url-pattern>/ui/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>Vaadin Application Servlet</servlet-name>
+		<url-pattern>/VAADIN/*</url-pattern>
+	</servlet-mapping>
+    
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+  <!-- 
+  <error-page>
+	<error-type>java.lang.Exception</error-type>
+	<location>/WEB-INF/jsp/error.jsp</location>
+  </error-page>
+   -->
+</web-app>

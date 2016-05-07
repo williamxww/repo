@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bow.dao.organization.OrganizationDao" >
+
+	<select id="getCompany" resultType="company">
+		select id, pid,name, code, type, status,description from hill_organization
+		where id = #{companyId}
+	</select>
+	
+	<insert id="addCompany" parameterType="company" >
+		<selectKey keyProperty="id" order="BEFORE" resultType="Long">
+		    select seq_organization.nextVal from dual
+		</selectKey>
+		insert into hill_organization(id, pid,name, code, type, status,description)
+		values(#{id},
+			#{pid},
+			#{name,jdbcType=VARCHAR},
+			#{code,jdbcType=VARCHAR},
+			#{type,jdbcType=NUMERIC},
+			#{status,jdbcType=NUMERIC},
+			#{description,jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<update id="updateCompany">
+		update hill_organization
+		<set>
+			<if test="pid != null">pid=#{pid},</if>
+			<if test="name != null">name=#{name},</if>
+			<if test="code != null">code=#{code},</if>
+			<if test="status != null">status=#{status},</if>
+			<if test="description != null">description=#{description}</if>
+		</set>
+		where id=#{id} and type=1
+	</update>
+	
+	<delete id="deleteCompany" >
+		delete from hill_organization where id = #{companyId}
+	</delete>
+	
+	<select id="getDepartment" resultType="department">
+		select id,pid,name,code,type,status,description from hill_organization
+		where id=#{departmentId}
+	</select>
+	
+	<insert id="addDepartment" parameterType="department">
+		<selectKey keyProperty="id" order="BEFORE" resultType="Long">
+			select seq_organization.nextVal from dual
+		</selectKey>
+		insert into hill_organization(id, pid,name, code, type, status,description)
+		values(#{id},
+			#{pid},
+			#{name,jdbcType=VARCHAR},
+			#{code,jdbcType=VARCHAR},
+			#{type,jdbcType=NUMERIC},
+			#{status,jdbcType=NUMERIC},
+			#{description,jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<update id="updateDepartment">
+		update hill_organization
+		<set>
+			<if test="pid != null">pid=#{pid},</if>
+			<if test="name != null">name=#{name},</if>
+			<if test="code != null">code=#{code},</if>
+			<if test="status != null">status=#{status},</if>
+			<if test="description != null">description=#{description}</if>
+		</set>
+		where id=#{id} and type=2
+	</update>
+	
+	<delete id="deleteDepartment" >
+		delete from hill_organization where id = #{departmentId}
+	</delete>
+	
+	<select id="getDuty" resultType="duty">
+		select id,pid,name,code,type,status,description from hill_organization
+		where id=#{dutyId}
+	</select>
+	
+	<insert id="addDuty" parameterType="duty">
+		<selectKey keyProperty="id" order="BEFORE" resultType="Long">
+			select seq_organization.nextVal from dual
+		</selectKey>
+		insert into hill_organization(id, pid,name, code, type, status,description)
+		values(#{id},
+			#{pid},
+			#{name,jdbcType=VARCHAR},
+			#{code,jdbcType=VARCHAR},
+			#{type,jdbcType=NUMERIC},
+			#{status,jdbcType=NUMERIC},
+			#{description,jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<update id="updateDuty">
+		update hill_organization
+		<set>
+			<if test="pid != null">pid=#{pid},</if>
+			<if test="name != null">name=#{name},</if>
+			<if test="code != null">code=#{code},</if>
+			<if test="status != null">status=#{status},</if>
+			<if test="description != null">description=#{description}</if>
+		</set>
+		where id=#{id} and type=3
+	</update>
+	
+	<delete id="deleteDuty" >
+		delete from hill_organization where id = #{dutyId}
+	</delete>
+	
+	<select id="getEmployee" resultType="employee">
+		select id,pid,name,code,type,status,description from hill_organization
+		where id=#{employeeId}
+	</select>
+	
+	<insert id="addEmployee" parameterType="employee">
+		<selectKey keyProperty="id" order="BEFORE" resultType="Long">
+			select seq_organization.nextVal from dual
+		</selectKey>
+		insert into hill_organization(id, pid,name, code, type, status,description)
+		values(#{id},
+			#{pid},
+			#{name,jdbcType=VARCHAR},
+			#{code,jdbcType=VARCHAR},
+			#{type,jdbcType=NUMERIC},
+			#{status,jdbcType=NUMERIC},
+			#{description,jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<update id="updateEmployee">
+		update hill_organization
+		<set>
+			<if test="pid != null">pid=#{pid},</if>
+			<if test="name != null">name=#{name},</if>
+			<if test="code != null">code=#{code},</if>
+			<if test="status != null">status=#{status},</if>
+			<if test="description != null">description=#{description}</if>
+		</set>
+		where id=#{id} and type=4
+	</update>
+	
+	<delete id="deleteEmployee" >
+		delete from hill_organization where id = #{employeeId}
+	</delete>
+	
+	<insert id="addBatchEmployee" parameterType="java.util.List" >
+		<selectKey keyProperty="id" order="BEFORE" resultType="Long">
+			select seq_organization.nextVal from dual
+		</selectKey>
+		
+		insert into hill_organization(id, pid,name, code, type, status,description)
+		select seq_organization.nextVal, t.* from (
+		<foreach collection="list" item="e" index="index" separator="UNION ALL" >
+			select 
+				#{e.pid},
+				#{e.name,jdbcType=VARCHAR},
+				#{e.code,jdbcType=VARCHAR},
+				#{e.type,jdbcType=NUMERIC},
+				#{e.status,jdbcType=NUMERIC},
+				#{e.description,jdbcType=VARCHAR}
+			from DUAL
+		</foreach>
+		) t
+	</insert>
+	
+	<select id="getEmployees" parameterType="employee" resultType="employee">
+		select id,pid,name,code,type,status,description from hill_organization
+		<trim prefix="where" prefixOverrides="and">
+			<if test="id != null">id = #{id}</if>
+			<if test="pid !=null">and pid = #{pid}</if>
+			<if test="name !=null">and name = #{name}</if>
+			<if test="code !=null">and code = #{code}</if>
+			<if test="status !=null">and status = #{status}</if>
+			<if test="description !=null">and description = #{description}</if>
+		</trim>
+	</select>
+	
+	<!-- 获取节点 -->
+	<select id="getOrgaNode" resultType="orgaNode" parameterType="long">
+		<![CDATA[
+			select id, pid, name, code, type, description, status
+			  from hill_organization
+			where id = #{id}
+
+		]]>
+	</select>
+	
+	<select id="getParent" resultType="orgaNode" parameterType="long">
+		<![CDATA[
+			select id, pid, name, code, type, description, status
+			  from hill_organization
+			 where id in (select pid from hill_organization where id = #{id})
+
+		]]>
+	</select>
+	
+	<select id="getChildren" resultType="orgaNode">
+		<![CDATA[
+			select id,pid, name,code,type,description,status
+			from hill_organization where pid=#{id}
+		]]>
+	</select>
+	
+	<select id="getDescendant" resultType="orgaNode">
+		<![CDATA[
+			select id,pid, name,code,type,description,status
+			from hill_organization 
+			where type<=#{toLevel} start with id=#{id} connect by pid = prior id 
+		]]>
+	</select>
+	
+	<delete id="deleteCascade">
+		delete from hill_organization where id in (
+			select id from hill_organization start with id=#{id} connect by pid = prior id
+		)
+	</delete>
+	
+	<!-- 添加树节点 -->
+	<insert id="addOrgaNode" parameterType="orgaNode">
+		<selectKey keyProperty="id" order="BEFORE" resultType="Long">
+			select seq_organization.nextVal from dual
+		</selectKey>
+		insert into hill_organization(id, pid,name, code, type, status,description)
+		values(#{id},
+			#{pid},
+			#{name,jdbcType=VARCHAR},
+			#{code,jdbcType=VARCHAR},
+			#{type,jdbcType=NUMERIC},
+			#{status,jdbcType=NUMERIC},
+			#{description,jdbcType=VARCHAR}
+		)
+	</insert>
+	
+	<delete id="deleteOrgaNode">
+		delete from hill_organization where id = #{id}
+	</delete>
+	
+	
+	<select id="getTest" resultType="int">
+		select 1 from dual
+	</select>
+	
+	
+	 
+</mapper> 

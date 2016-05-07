@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bow.dao.organization.OrganizationDao" >
+
+	<select id="getMenus" parameterType="long" resultType="menu">
+		select id, pid, name, url, need_permission as needPermission, icon, description from hill_menu
+		where pid = #{pid}
+	</select>
+	
+	<select id="getMenu" parameterType="long" resultType="menu">
+		select id, pid, name, url, need_permission as needPermission, icon, description from hill_menu
+		where id = #{id}
+	</select>
+	
+	<insert id="addMenu" parameterType="menu">
+		<selectKey keyProperty="id" order="BEFORE" resultType="long">
+			select nvl(max(id),0)+1 from hill_menu
+		</selectKey>
+		insert into hill_menu
+		  (id, pid, name, url, need_permission, icon, description)
+		values
+		  (
+		  	#{id}, #{pid}, #{name}, 
+		  	#{url, jdbcType=VARCHAR}, 
+		  	#{needPermission, jdbcType=VARCHAR}, 
+		  	#{icon, jdbcType=VARCHAR}, 
+		  	#{description, jdbcType=VARCHAR}
+		  )
+	</insert>
+	
+	<delete id="deleteMenu" parameterType="menu">
+		delete from hill_menu where id=#{id}
+	</delete>
+	
+	<update id="updateMenu">
+		update hill_menu 
+		<set>
+			<if test="pid != null ">pid=#{pid}</if>
+			<if test="name != null ">name=#{name}</if>
+			<if test="url != null ">url=#{url}</if>
+			<if test="needPermission != null ">need_permission=#{needPermission}</if>
+			<if test="icon != null ">icon=#{icon}</if>
+			<if test="description != null ">description=#{description}</if>
+		</set>
+		where id=#{id}
+	</update>
+	
+</mapper>
