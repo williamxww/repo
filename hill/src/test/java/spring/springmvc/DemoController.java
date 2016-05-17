@@ -6,7 +6,10 @@
  */ 
 package spring.springmvc;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,10 +24,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class DemoController {
 
-    @RequestMapping("/getString.do")
-    public String getString(HttpServletRequest request) {
-        String param = request.getParameter("param");
-        System.out.println(param);
-        return "success";
+    @RequestMapping("/hello")
+    public void getString(HttpServletRequest request, HttpServletResponse response)
+        throws IOException
+    {
+        System.out.println(">> access to DemoController");
+        response.getWriter().println("<h1> hello </h1>");
     }
 }
