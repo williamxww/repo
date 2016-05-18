@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>ECharts</title>
+</head>
+<body>
+    
+    <div id="main" style="height:400px"></div>
+    <!-- ECharts单文件引入 -->
+    <script src="./echart/echarts.js"></script>
+    <script type="text/javascript">
+        // 路径配置
+        require.config({
+            paths: {
+				//这里用echarts代表了目录./echart，供下面require使用
+                echarts: './echart'
+            }
+        });
+        
+        // 使用
+        require(
+            [
+                'echarts',
+                'echarts/chart/bar' // 使用柱状图就加载bar模块，按需加载
+            ],
+            function (ec) {
+                // 基于准备好的dom，初始化echarts图表
+                var myChart = ec.init(document.getElementById('main')); 
+                
+				//option1 用于生成一个简单的柱形图
+                var option1 = {
+                    tooltip: {
+						//显示每种类的中轴
+                        trigger: 'axis'
+                    },
+                    legend: {
+                        data:['销量']
+                    },
+                    xAxis : [
+                        {
+                            type : 'category',
+                            data : ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"]
+                        }
+                    ],
+                    yAxis : [
+                        {
+                            type : 'value'
+                        }
+                    ],
+                    series : [
+                        {
+                            "name":"销量",
+                            "type":"bar",
+                            "data":[5, 20, 30, 10, 10, 20]
+                        }
+                    ]
+                };
+
+				var option2 = {
+					title : {
+						text: '问题汇总',
+						subtext: '专项'
+					},
+					tooltip : {
+						trigger: 'axis'
+					},
+					legend: {
+						data:[
+							'BU1-问题单数','BU2-问题单数','',
+							'BU1-问题数',  'BU2-问题数'
+						]
+					},
+					
+					grid: {y: 70, y2:30, x2:20},
+					xAxis : [
+						{
+							type : 'category',
+							data : ['专项A','专项B','专项C']
+						},
+						{
+							type : 'category',
+							axisLine: {show:false},
+							data : ['专项A','专项B','专项C']
+						}
+					],
+					yAxis : [
+						{
+							type : 'value',
+							axisLabel:{formatter:'{value} ms'}
+						}
+					],
+					series : [
+						{
+							name:'BU1-问题单数',
+							type:'bar',
+							itemStyle: {normal: {color:'rgba(193,35,43,1)', label:{show:true}}},
+							data:[40,155,95]
+						},
+						{
+							name:'BU2-问题单数',
+							type:'bar',
+							itemStyle: {normal: {color:'rgba(181,195,52,1)', label:{show:true,textStyle:{color:'#27727B'}}}},
+							data:[100,200,105]
+						},
+						
+						{
+							name:'BU1-问题数',
+							type:'bar',
+							xAxisIndex:1,
+							itemStyle: {normal: {color:'rgba(193,35,43,0.5)', label:{show:true,formatter:function(p){return p.value > 0 ? (p.value +'\n'):'';}}}},
+							data:[96,224,164]
+						},
+						{
+							name:'BU2-问题数',
+							type:'bar',
+							xAxisIndex:1,
+							itemStyle: {normal: {color:'rgba(181,195,52,0.5)', label:{show:true}}},
+							data:[491,2035,389]
+						}
+
+					]
+				};
+        
+                // 为echarts对象加载数据 
+                myChart.setOption(option2); 
+            }
+        );
+    </script>
+</body>
