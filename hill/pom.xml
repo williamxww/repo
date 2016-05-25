@@ -383,6 +383,14 @@
     <type>pom</type>
 </dependency>
 
+<!-- http://mvnrepository.com/artifact/com.alibaba/fastjson -->
+<dependency>
+    <groupId>com.alibaba</groupId>
+    <artifactId>fastjson</artifactId>
+    <version>1.2.12</version>
+</dependency>
+
+
 
 	
 
