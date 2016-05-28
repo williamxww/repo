@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>IE-INDEX</title>
+	<link rel="stylesheet" type="text/css" href="../themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="../themes/icon.css">
+	<link rel="stylesheet" type="text/css" href="common.css">
+	<script type="text/javascript" src="../jquery.min.js"></script>
+	<script type="text/javascript" src="../jquery.easyui.min.js"></script>
+	<script type="text/javascript">
+		var index = 0;
+		function addPanel(){
+			index++;
+			$('#tabArea').tabs('add',{
+				title: 'Tab'+index,
+				content: '<div style="padding:10px">Content'+index+'</div>',
+				closable: true
+			});
+		}
+
+		function closeTab(v){
+			var l = $('#tabArea').tabs('tabs').length;
+			switch (v) {
+				case "closeAll":
+					for(var i=1;i<l;i++){
+						$('#tabArea').tabs('close', 1);//每次循环都关掉第一个因为第0个是HOME
+					}
+					break;
+
+				case "closeCurrent":
+//				$('#tabArea').tabs('close', 'Home');//根据tab title也可以
+					
+					var tab = $('#tabArea').tabs('getSelected');
+//					var c = tab.panel('options').title;//注意这里的tab的options在其panel(上级DIV)中
+					if (tab){
+						var index = $('#tabArea').tabs('getTabIndex', tab);
+						if(index>0){ //第一个页签不能关闭
+							$('#tabArea').tabs('close', index);
+						}
+					}
+					break;
+
+				case "closeOthers":
+					var index = $('#tabArea').tabs('getTabIndex', $('#tabArea').tabs('getSelected'));
+					if(index==0){//当被选中的是HOME则直接closeAll
+						closeTab("closeAll");
+					} else {
+						for(var i=1;i<l;i++){
+							if(i<index){
+								$('#tabArea').tabs('close', 1);
+							}else{
+								$('#tabArea').tabs('close', 2);
+							}
+						}
+						$('#tabArea').tabs('select', 1);
+					}
+					break;
+			}
+		}
+
+		function treeHandler(node){
+//			var node = $('#tt').tree('getSelected');
+			if (node){
+				var s = node.text;
+				if (node.attributes){
+					s += ","+node.attributes.p1+","+node.attributes.p2;
+				}
+				$.messager.alert('Tree',s,'info');
+			}
+		}
+
+		function onTreeNodeClick(node){
+			if(node.url){
+				//已经存在打开的就只做激活即可
+				if($('#tabArea').tabs('exists',node.text)){
+					$('#tabArea').tabs('select',node.text);
+					return;
+				}
+				//找此url对应的tab是否存在
+				$('#tabArea').tabs('add',{
+					title:node.text,
+					content: '<iframe id="ifmain" width=100% height=98% scrolling=auto frameborder=0 src="'+node.url+'" ></iframe>',
+//					href:node.url,
+					closable: true
+				});
+			}
+		}
+
+		function changeTree(urlStr){
+			$("#navigationTree").tree({
+				url:urlStr,
+				method:'get',
+				animate:true,
+				lines:true,
+				onClick:onTreeNodeClick});
+		}
+	</script>
+</head>
+<body class="easyui-layout">
+	<!-- 公司信息 -->
+	<div data-options="region:'north',border:false" style="height:60px;background:#B3DFDA;padding:10px">
+		<div style="border:solid red 1px;width:45px;height:40px;float:left;margin:0 20px;"
+		onclick="changeTree('data/tree_data3.json')">配置</div>
+		<div style="border:solid red 1px;width:45px;height:40px;float:left;margin:0 20px;" onclick="changeTree('data/tree_data2.json')">管理</div>
+		<div style="border:solid red 1px;width:45px;height:40px;float:left;margin:0 20px;">查询</div>
+	</div>
+	<!-- 左侧导航树 -->
+	<!-- 
+	树数据格式：id text state iconCls children
+	-->
+	<div data-options="region:'west',
+		split:true,
+		title:'NAVIGATION'" 
+		style="width:210px;padding:0 10 10 10;">
+			<div id="navigationTree" class="easyui-panel" data-options="border:false">
+				<ul class="easyui-tree" data-options="url:'data/tree_data1.json',
+				method:'get',
+				animate:true,
+				lines:true,
+				onClick:treeHandler"></ul>
+			</div>
+	</div>
+	
+	<!-- ========================中间主内容======================================= -->
+	<!-- tab的工具 -->
+	<div id="tab-tools">
+		<a href="javascript:void(0)" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-add'" onclick="addPanel()"></a>
+		<a href="#" class="easyui-menubutton" data-options="menu:'#simpleTabTool'"></a>
+	</div>
+	<div id="simpleTabTool" style="width:150px;">
+		<div onclick="closeTab('closeCurrent')">Close Current</div>
+		<div class="menu-sep"></div>
+		<div onclick="closeTab('closeAll')">Close All</div>
+		<div onclick="closeTab('closeOthers')">Close Others</div>
+		
+	</div>
+
+	<div id="tabArea" class="easyui-tabs" data-options="
+		region:'center',
+		tabWidth:112,
+		tools:'#tab-tools'" >
+		<div title="Home" style="padding:10px">
+			<p>NEWS&PRODUCTION-DATA</p>
+		</div>
+	</div>
+	
+
+
+
+
+	<!-- ********************************************脚注****************************************** -->
+	<div data-options="region:'south',border:false" style="height:20px;background:#A9FACD;text-align:center;">
+		&copy;all rights reserved by vv
+	</div>
+</body>
+</html>

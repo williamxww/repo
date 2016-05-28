@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>basic app</title>
+	<!-- load frame file -->
+	<link rel="stylesheet" type="text/css" href="../../static/easyui/themes/default/easyui.css">
+	<link rel="stylesheet" type="text/css" href="../../static/easyui/themes/icon.css">
+	<!-- defined by myself -->
+	<link rel="stylesheet" type="text/css" href="common.css">
+	
+</head>
+<!-- class in body tag just for full screen -->
+<body class="easyui-layout">
+	<!-- left accordion area -->
+	<div data-options=" region:'west',split:true" style="width:200px;">
+		<div class="easyui-accordion" data-options="fit:true,border:false">
+			<!-- tree -->
+			<div title="Item Tree">
+				<div class="easyui-panel" data-options="border:false">
+					<ul class="easyui-tree" data-options="url:'data/tree_data1.json',
+					method:'get',
+					animate:true,
+					lines:true,
+					onClick:treeHandler"></ul>
+				</div>
+			</div>
+			<!-- common query -->
+			<div title="Conditions" data-options="selected:true" style="padding:10px;">
+				tree input:
+				<input class="easyui-combotree" data-options="url:'data/tree_data1.json',method:'get',required:false" style="width:100%;"/>
+				date input:
+				<input class="easyui-datebox" data-options="formatter:myformatter,parser:myparser" style="width:100%;"/>
+				<p>Amount:</p>
+				<input class="easyui-numberbox" data-options="min:10,max:90,precision:2,required:false">
+			</div>
+			<!-- setting -->
+			<div title="Title3" style="padding:10px">
+				<fieldset>
+					<legend>Info</legend>
+					<input type="radio">setting1</input><br/>
+					<input type="radio">setting2</input><br/>
+					<input type="radio">setting3</input><br/>
+				</fieldset>
+			</div>
+		</div>
+	</div>
+
+<!-- ========================================center data list area============================ -->
+	<div data-options=" region:'center',title:'list area' ">
+		<!-- tool bar -->
+		<div id="toolbar">
+			<a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addData()">新增</a>
+			<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleteData()">删除</a>
+		</div>
+
+		<!-- 列表 -->
+		<table id="dg" class="easyui-datagrid"
+			data-options="rownumbers:true,
+			singleSelect:false,
+			selectOnCheck:true,
+			checkOnSelect:false,
+			onDblClickRow:onDblClickRow,
+			fit:true,
+			pagination:true,
+			fitColumns:true,
+			url:'data/datagrid_data1.json',
+			method:'get',
+			toolbar:'#toolbar' ">
+			<thead>
+				<tr>
+					<th data-options="field:'ck',checkbox:true"></th>
+					<th data-options="field:'itemid',width:80,formatter:createLink">Item ID</th>
+					<th data-options="field:'productid',width:100" >Product</th>
+					<th data-options="field:'listprice',width:80,align:'right',styler:cellStyler ">List Price</th>
+					<th data-options="field:'unitcost',width:80,align:'right'">Unit Cost</th>
+					<th data-options="field:'attr1',resize:true,width:''">Attribute</th>
+					<th data-options="field:'status',width:60,align:'center'">Status</th>
+				</tr>
+			</thead>
+		</table>
+	</div>	
+
+
+<!-- =================================edit window================================================= -->
+
+	<!-- 窗口上的按钮 -->
+	<div id="saveButton">
+		<a href="#" class="icon-save" iconCls="icon-save" onclick=""></a>
+	</div>
+
+	<!-- 编辑页面 -->
+	<div id="w" class="easyui-window" title="编辑页面" 
+		data-options="title:'编辑页面', 
+					closed:true,
+					tools:'#saveButton',
+					collapsible:false,
+					minimizable:false,
+					maximizable:false" 
+					style="width:300px;height:400px;">
+		
+		<div class="easyui-panel" data-options="fit:true" style="width:400px;border:0">
+			<div style="padding:10px 10px;">
+			<form id="ff" method="post" data-options="toolbar:'#toolbar'">
+				<table cellpadding="5">
+					<tr>
+						<td>ItemId:</td>
+						<td><input class="easyui-textbox" type="text" name="itemid" data-options="required:true"></input></td>
+					</tr>
+					<tr>
+						<td>Product:</td>
+						<td><input class="easyui-textbox" type="text" name="productid" /></td>
+					</tr>
+					<tr>
+						<td>List Price:</td>
+						<td><input class="easyui-textbox" type="text" name="listprice" /></td>
+					</tr>
+					<tr>
+						<td>Unit Cost:</td>
+						<td><input class="easyui-textbox" name="unitcost" /></td>
+					</tr>
+					<tr>
+						<td>Attribute:</td>
+						<td><input class="easyui-textbox" name="attr1" style="height:60px" data-options="multiline:true"/></td>
+					</tr>
+					<tr>
+						<td>Status:</td>
+						<td>
+							<select class="easyui-combobox" name="status" data-options="panelHeight:'auto'">
+								<option value="P">P</option>
+								<option value="NP">NP</option>
+							</select>
+						</td>
+					</tr>
+				</table>
+			</form>
+			</div>
+		</div>
+	</div>
+
+	
+	<script type="text/javascript" src="../../static/easyui/jquery.min.js"></script>
+	<script type="text/javascript" src="../../static/easyui/jquery.easyui.min.js"></script>
+	<script type="text/javascript">
+		// 满足某种条件的值突出显示 styler:cellStyler
+		function cellStyler(value,row,index){
+			if (value < 30){
+				return 'background-color:#ffee00;color:red;';
+			}
+		}
+		
+		//双击和点击链接都可以打开编辑页 相关方法注意从源码中找
+		function onDblClickRow(rowIndex, rowData){
+			editData(rowIndex);
+		}
+		function createLink(value,row,index){
+			return "<a href='#' onclick='editData("+index+")' >"+value+"</a>";
+		}
+		function editData(index){
+			$('#w').window('open')
+			$('#ff').form('load',$('#dg').datagrid('getRows')[index]);
+		}
+
+		function addData(){
+			$('#ff').form('clear');//先清空再打开
+			$('#w').window('open');
+		}
+
+		function deleteData(){
+			var ss = [];
+			var rows = $('#dg').datagrid('getSelections');
+			for(var i=0; i<rows.length; i++){
+				var row = rows[i];
+				ss.push('<span>'+row.itemid+":"+row.productid+":"+row.attr1+'</span>');
+			}
+			$.messager.alert('Info', ss.join('<br/>'));
+		}
+
+
+
+		function treeHandler(node){
+//			var node = $('#tt').tree('getSelected');
+			if (node){
+				var s = node.text;
+				if (node.attributes){
+					s += ","+node.attributes.p1+","+node.attributes.p2;
+				}
+				$.messager.alert('Tree',s,'info');
+			}
+		}
+
+		function myformatter(date){
+			var y = date.getFullYear();
+			var m = date.getMonth()+1;
+			var d = date.getDate();
+			return y+'-'+(m<10?('0'+m):m)+'-'+(d<10?('0'+d):d);
+		}
+		function myparser(s){
+			if (!s) return new Date();
+			var ss = (s.split('-'));
+			var y = parseInt(ss[0],10);
+			var m = parseInt(ss[1],10);
+			var d = parseInt(ss[2],10);
+			if (!isNaN(y) && !isNaN(m) && !isNaN(d)){
+				return new Date(y,m-1,d);
+			} else {
+				return new Date();
+			}
+		}
+
+	</script>
+</body>
+</html>
