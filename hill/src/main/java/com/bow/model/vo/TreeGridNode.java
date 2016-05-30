@@ -11,9 +11,53 @@ import java.util.List;
  */
 public class TreeGridNode
 {
+    private String id;
+    
     private String name;
     
+    private boolean isLeaf;
+    
     private List<TreeGridNode> children;
+    
+    /**
+     * 取得id
+     * 
+     * @return 返回id。
+     */
+    public String getId()
+    {
+        return id;
+    }
+    
+    /**
+     * 设置id
+     * 
+     * @param id 要设置的id。
+     */
+    public void setId(String id)
+    {
+        this.id = id;
+    }
+    
+    /**
+     * 取得isLeaf
+     * 
+     * @return 返回isLeaf。
+     */
+    public boolean isLeaf()
+    {
+        return isLeaf;
+    }
+    
+    /**
+     * 设置isLeaf
+     * 
+     * @param isLeaf 要设置的isLeaf。
+     */
+    public void setLeaf(boolean isLeaf)
+    {
+        this.isLeaf = isLeaf;
+    }
     
     /**
      * 取得name

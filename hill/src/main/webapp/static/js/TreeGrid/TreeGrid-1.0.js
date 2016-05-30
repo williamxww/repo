@@ -34,8 +34,8 @@
 
 			//节点图标:有isLeaf属性就根据isLeaf来判断否则根据children属性判断
 			if(j==treeColumnIndex){
-				if(row.isLeaf != undefined ){
-					if(row.isLeaf){
+				if(row.leaf != undefined ){
+					if(row.leaf){
 						result += "<img src='" + config.iconLeaf + "' class='image_nohand'>";
 					}else{
 						var picUrl = (openStatus=="Y")? config.iconFolderOpen : config.iconFolderClose;
@@ -73,6 +73,10 @@
 		if(restricts==""){
 			restricts = {};
 		}
+		if(typeof(restricts)!="object"){
+			console.error("remoteRestricts should be Ojbect");
+		}
+		var jsonData = null;
 		$.ajax({
 			type:'POST',
 			data:restricts,
@@ -80,12 +84,14 @@
 			url:url,
 			success:function(data,success){
 				if(success){
-					return eval('('+data+')');
+					jsonData = eval('('+data+')');
 				}else{
 					console.error('fail to call '+url);
 				}
 			}
 		});
+		
+		return jsonData;
 	}
 
 	
@@ -233,9 +239,16 @@
 				
 				if(config.delayLoad && nextTrs.length==0){
 					//延迟加载且当前没有数据
-//					var rows = remoteCall(config.remoteUrl,config.remoteRestricts);
-					var rows = [{name: "节点6",code:"c6",isLeaf:false},
-						{name: "节点7",code:"c7",isLeaf:true}];
+					var rows = null;
+					if(config.onDelayLoadData){
+						var nodeData = JSON.parse($table.find("#" + trid).attr("data"));
+						rows = config.onDelayLoadData(nodeData);
+					}
+					if(rows==null){
+						rows = remoteCall(config.remoteUrl,config.remoteRestricts);
+					}
+//					var rows = [{name: "节点6",code:"c6",isLeaf:false},
+//						{name: "节点7",code:"c7",isLeaf:true}];
 					this.TreeGrid('appendData', config,$table,rows,trid,currentLevel+1);
 					
 				}else{//只有确定该行已经有子级(nextTrs.length>0)才可以循环展示
@@ -249,7 +262,10 @@
 		
 		//将数据添加在指定的parentId后面,每次添加的数据都会紧跟parentId,这里最好倒序添加数据
 		appendData:function(config,$context,rows,parentId,currentLevel){
-			
+			if(rows==null){
+				console.error("rows is null");
+				return;
+			}
 			for(var i=rows.length-1;i>=0;i--){
 				var id = parentId + "_" + i;
 				var row = rows[i];
@@ -269,7 +285,7 @@
         } else if (typeof method === 'object' || !method) {
             return methods.init.apply(this, arguments);
         } else {
-            $.error('Method with name ' + method + ' does not exists for jQuery.treegrid');
+            $.error('Method with name ' + method + ' does not exists for jQuery.TreeGrid');
         }
     };
 
@@ -289,15 +305,16 @@
 		treeColumnIndex:0,//默认第0列是树
 		rownum:0,
 		showHoverCss:true,
-		delayLoad:true,
 		iconFolderOpen : 'images/folderOpen.gif',
 		iconFolderClose : 'images/folderClose.gif',
 		iconLeaf : 'images/defaultLeaf.gif',
-		itemClick: function(id,rowIndex,data){console.log(id);},
-
+		itemClick: function(id,rowIndex,data){},
+		
 		//remote props
+		delayLoad:true,
 		remoteUrl:"",
-		remoteRestricts:""
+		remoteRestricts:"",
+		onDelayLoadData:function(data){console.log(data)}
 	};
 
 

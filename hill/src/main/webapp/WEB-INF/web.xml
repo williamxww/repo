@@ -12,11 +12,12 @@
       <param-name>contextConfigLocation</param-name>   
       <param-value>
       	classpath:conf/spring/applicationContext.xml,
-      	classpath:conf/spring/applicationContext-mybatis.xml,
+      	classpath:conf/spring/applicationContext-mybatis.xml
+      	<!-- 
       	classpath:conf/spring/applicationContext-cache.xml,
       	classpath:conf/spring/applicationContext-shiro.xml,
       	classpath:conf/spring/applicationContext-activiti.xml
-      	
+      	 -->
       </param-value>   
   </context-param>  
   
@@ -67,7 +68,7 @@
     
     
     
-    <!-- shiro 安全过滤器 --> 
+    <!-- shiro 安全过滤器
     <filter>
         <filter-name>shiroFilter</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
@@ -77,14 +78,14 @@
             <param-value>true</param-value>
         </init-param>
     </filter>
-
-	<!-- 只有action才会用shiro拦截 -->
+	 --> 
+	<!-- 只有action才会用shiro拦截 
     <filter-mapping>
         <filter-name>shiroFilter</filter-name>
         <url-pattern>*.action</url-pattern>
         <dispatcher>REQUEST</dispatcher>
     </filter-mapping>
-    
+    -->
     
     <!-- dwr 使用polling和comet的方式 ,跨域安全:false  互动：ajax轮询和ajax长连接，此技术属于ajax长连接
     	# 该技术功能点：
@@ -122,10 +123,6 @@
     	<servlet-class>com.bow.component.servlet.InitHillServlet</servlet-class>
     	<load-on-startup>3</load-on-startup>
     </servlet>
-    <servlet-mapping>
-    	<servlet-name>initHillServlet</servlet-name>
-    	<url-pattern>/NEVERCOMEHERE</url-pattern>
-    </servlet-mapping>
     
     
     <!-- ACTIVITI 

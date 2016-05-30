@@ -1,0 +1,55 @@
+<HTML>
+<HEAD>
+<TITLE>Demo</TITLE>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<META NAME="Generator" CONTENT="EditPlus">
+	<script type="text/javascript" src="jquery-1.7.2.js"></script>
+	
+	<script type="text/javascript" src="TreeGrid-1.0.js"></script>
+	<link type="text/css" rel="stylesheet" href="TreeGrid.css"/>
+	<script>
+	$(function(){
+		$("#testTreeGrid").TreeGrid({
+			width:"300px",
+			columns:[
+				{headerText: "Name", dataField: "name", headerAlign: "left",dataAlign: "left",width: "100"},
+				{headerText: "id", dataField: "id", headerAlign: "center", width: "100"},
+				{headerText: "Customize", headerAlign: "center", dataAlign: "center", width: "50"}
+			],
+			remoteUrl:"/hill/TreeGrid/getData",
+			remoteRestricts:{},
+			onDelayLoadData:loadData
+		});
+		
+		function loadData(nodeData){
+			var jsonData = null;
+			$.ajax({
+				type:'POST',
+				data:{
+					name:nodeData.name
+				},
+				async:false,
+				url:"/hill/TreeGrid/getData",
+				success:function(data,success){
+					if(success){
+						jsonData = eval('('+data+')');
+					}else{
+						console.error('fail to call '+url);
+					}
+				}
+			});
+			return jsonData;
+		}
+
+	});
+		
+	</script>
+</HEAD>
+
+<BODY>
+	<div id="testTreeGrid">
+	</div>
+	<div id="testTreeGridVV">
+	</div>
+</BODY>
+</HTML>

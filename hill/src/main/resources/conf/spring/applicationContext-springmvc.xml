@@ -14,14 +14,12 @@
 	<!-- 此servlet对应的名称为 default 在web.xml中定义了其servlet-mapping 主要是为放行静态文件 -->
 	<mvc:default-servlet-handler/>
 	
-	<context:component-scan base-package="com.bow.controller" />
+	<!-- use-default-filters="true" 为默认, 在type=annotation时，其为true会默认扫描@component -->
+	<context:component-scan base-package="com.bow.controller" use-default-filters="true" >
+		<!-- 不用时将其过滤掉 -->
+		<context:exclude-filter type="regex" expression="com.bow.controller.activiti.*"/>
+	</context:component-scan>
 	
-	<!-- 自动扫描controller包下所有标注为@Controller的类  
-	<context:component-scan base-package="com.bow.controller" use-default-filters="false">
-        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
-        <context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
-    </context:component-scan>
-    -->
     
 	<!-- 自定义注解解析 -->
 	<mvc:annotation-driven>
