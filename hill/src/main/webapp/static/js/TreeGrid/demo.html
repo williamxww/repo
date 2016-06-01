@@ -17,8 +17,7 @@
 				{headerText: "Customize", headerAlign: "center", dataAlign: "center", width: "50"}
 			],
 			remoteUrl:"/hill/TreeGrid/getData",
-			remoteRestricts:{},
-			onDelayLoadData:loadData
+			data:[{name:'node1',id:'n1',children:[{name:'node1-1',id:'n1-1'}]},{name:'node2',id:'n2'}]
 		});
 		
 		function loadData(nodeData){

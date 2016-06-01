@@ -36,17 +36,17 @@
 			if(j==treeColumnIndex){
 				if(row.leaf != undefined ){
 					if(row.leaf){
-						result += "<img src='" + config.iconLeaf + "' class='image_nohand'>";
+						result += "<span class='image_nohand nodeLeaf'/>";
 					}else{
-						var picUrl = (openStatus=="Y")? config.iconFolderOpen : config.iconFolderClose;
-						result += "<img folder='Y' trid='" + id + "' src='" + picUrl + "' class='image_hand'>";
+						var nodeClass = (openStatus=="Y")? "nodeOpen" : "nodeClose";
+						result += "<span folder='Y' trid='" + id + "' class='image_hand "+nodeClass+"'/>";
 					}
 				}else{
 					if(row.children){
-						var picUrl = (openStatus=="Y")? config.iconFolderOpen : config.iconFolderClose;
-						result += "<img folder='Y' trid='" + id + "' src='" + picUrl + "' class='image_hand'>";
+						var nodeClass = (openStatus=="Y")? "nodeOpen" : "nodeClose";
+						result += "<span folder='Y' trid='" + id + "' class='image_hand "+nodeClass+"'/>";
 					}else{
-						result += "<img src='" + config.iconLeaf + "' class='image_nohand'>";
+						result += "<span class='image_nohand nodeLeaf'/>";
 					}
 				}
 			}
@@ -207,17 +207,17 @@
 			});
 
 			//bind click to image
-			$table.find("img[folder='Y']").live("click", function(){
+			$table.find("span[folder='Y']").live("click", function(){
 				var trid = $(this).attr("trid"); 
 				var isOpen = $table.find("#" + trid).attr("openStatus");
 				var statusAfterClick = (isOpen == "Y") ? "N" : "Y";//当前为打开状态则关闭
 				$table.find("#" + trid).attr("openStatus", statusAfterClick);
 				
 				if(statusAfterClick == "N"){ //隐藏子节点
-					$table.find("#"+trid).find("img[folder='Y']").attr("src", config.iconFolderClose);
+					$table.find("#"+trid).find("span[folder='Y']").removeClass("nodeOpen").addClass("nodeClose");
 					$table.find("tr[id^=" + trid + "_]").css("display", "none");
 				}else{ //显示子节点
-					$table.find("#"+trid).find("img[folder='Y']").attr("src", config.iconFolderOpen);
+					$table.find("#"+trid).find("span[folder='Y']").removeClass("nodeClose").addClass("nodeOpen");
 					$(this).TreeGrid("showNextLevelRecursive",config,$context,trid);
 				}
 			});
@@ -305,9 +305,6 @@
 		treeColumnIndex:0,//默认第0列是树
 		rownum:0,
 		showHoverCss:true,
-		iconFolderOpen : 'images/folderOpen.gif',
-		iconFolderClose : 'images/folderClose.gif',
-		iconLeaf : 'images/defaultLeaf.gif',
 		itemClick: function(id,rowIndex,data){},
 		
 		//remote props

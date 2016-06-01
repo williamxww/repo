@@ -45,3 +45,37 @@ body{
 .TreeGrid .row_active{
 	background-color: #E0FFFF;
 }
+
+
+.TreeGrid .nodeOpen{
+	background:url(images/node_icons.png);
+	background-repeat:no-repeat;
+	/*截取图片*/
+	background-position:-49px -0px;
+	height:16px;
+	width:16px;
+	/*span这种元素不能设置宽度,所以要改为inline-block*/
+	display:-moz-inline-box;
+	display:inline-block;
+}
+
+.TreeGrid .nodeClose{
+	background:url(images/node_icons.png);
+	background-repeat:no-repeat;
+	background-position:-33px -0px;
+	height:16px;
+	width:16px;
+	display:-moz-inline-box;
+	display:inline-block;
+}
+
+.TreeGrid .nodeLeaf{
+	background:url(images/leaf_icon.gif);
+	background-repeat:no-repeat;
+	background-position:-0px -0px;
+	height:16px;
+	width:16px;
+	display:-moz-inline-box;
+	display:inline-block;
+}
+
