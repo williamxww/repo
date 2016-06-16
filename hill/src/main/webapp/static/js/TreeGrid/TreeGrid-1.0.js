@@ -1,74 +1,6 @@
 (function($){
 
-	function buildRowHtml(config,id,parentId,row, currentLevel,displayEagly){
-		var treeColumnIndex = config.treeColumnIndex;
-		var columns = config.columns;
-
-		var openStatus = "N";
-		var dispaly = "none";
-		if(displayEagly){
-			openStatus = "N"
-			dispaly = "";
-		}else{
-			var displayLevel = config.displayLevel;
-			if(currentLevel < displayLevel) openStatus = "Y";//说明当前行已展开
-			if(currentLevel<=displayLevel) dispaly = ""; //只展示级别<=displayLevel的节点
-		}
-		
-		
-		var result = "<tr id='" + id + "' pid='" + parentId
-			+ "' openStatus='" + openStatus + "' data='" + JSON.stringify(row) 
-			+ "' rowIndex='" + config.rownum++ 
-			+ "' level="+currentLevel
-			+ " style='display:" + dispaly + "'>";
-		for(var j=0;j<columns.length;j++){
-			var col = columns[j];
-			result += "<td align='" + (col.dataAlign || config.dataAlign) + "'";
-
-			//层次缩进
-			if(j==treeColumnIndex){
-				result += " style='text-indent:" + (parseInt((config.indentation))*(currentLevel-1)) + "px;'> ";
-			}else{
-				result += ">";
-			}
-
-			//节点图标:有isLeaf属性就根据isLeaf来判断否则根据children属性判断
-			if(j==treeColumnIndex){
-				if(row.leaf != undefined ){
-					if(row.leaf){
-						result += "<span class='image_nohand nodeLeaf'/>";
-					}else{
-						var nodeClass = (openStatus=="Y")? "nodeOpen" : "nodeClose";
-						result += "<span folder='Y' trid='" + id + "' class='image_hand "+nodeClass+"'/>";
-					}
-				}else{
-					if(row.children){
-						var nodeClass = (openStatus=="Y")? "nodeOpen" : "nodeClose";
-						result += "<span folder='Y' trid='" + id + "' class='image_hand "+nodeClass+"'/>";
-					}else{
-						result += "<span class='image_nohand nodeLeaf'/>";
-					}
-				}
-			}
-			
-			//单元格内容
-			if(col.handler){
-				if((col.folderHidden || false) && row.children){
-					result += "</td>";
-				}else{
-					result += (eval(col.handler + ".call(new Object(), row, col)") || "") + "</td>";
-				}
-			}else{
-				result += (row[col.dataField] || "") + "</td>";
-			}
-		}
-		return result += "</tr>";
-	}
-
-
-
-
-
+	
 	function remoteCall(url,restricts){
 		if(restricts==""){
 			restricts = {};
@@ -92,6 +24,19 @@
 		});
 		
 		return jsonData;
+	}
+
+	function getParentId(id){
+		return id.substring(0,id.lastIndexOf('_'));
+	}
+
+	function getCurrentLevel(id){
+		var pid = getParentId(id);
+		var levelStr = $('#'+pid).attr('level');
+		if( levelStr==undefined ){
+			levelStr = 0;
+		}
+		return parseInt(levelStr)+1;
 	}
 
 	
@@ -123,23 +68,31 @@
 			});
 			
 		},
-
+		
+		//画表头
 		drawHeader:function(config){
-			var result = "<tr id='TRH' class='header' height='" + config.headerHeight + "'>";
+			var id = config.id+'H';
+			$(this).find("table").append("<tr id='"+id+"' />");
+			var $th = $('#'+id);
+			$th.addClass('header');
+			$th.attr('height',config.headerHeight);
 			var cols = config.columns;
 			for(i=0;i<cols.length;i++){
 				var col = cols[i];
-				result += "<td align='" + (col.headerAlign || config.headerAlign) + "' width='" 
-					+ (col.width || "") + "'>" + (col.headerText || "") + "</td>";
+				$th.append("<td />");
+				var $td = $th.find('td:last');
+				$td.attr('align',(col.headerAlign || config.headerAlign) );
+				$td.attr('width',(col.width || "") );
+				$td.append(col.headerText || "");
 			}
-			result += "</tr>";
 			return this.each(function(){
-				$(this).find("table").append(result);
+				
 			});
 			
 			
 		},
 
+		//画数据
 		drawData : function(config){
 			var rows = {};
 			if(config.data){
@@ -153,22 +106,110 @@
 
 			var columns = config.columns;
 			return this.each(function(){
-				$(this).TreeGrid('drawDataRecursive', config,rows,"TRH",1);
+				$(this).TreeGrid('drawDataRecursive', config,config.id+'H',rows,config.pagination);
 			});
 		},
 
-		drawDataRecursive:function(config,rows,parentId,currentLevel){
+		drawDataRecursive:function(config,parentId,rows,appendPage){
 			
+			var levelStr = this.find('#'+parentId).attr('level');
+			if(levelStr == undefined ){
+				levelStr = 0;
+			}
+			var currentLevel = parseInt(levelStr)+1;
+			var prevTrId = parentId;
 			for(var i=0;i<rows.length;i++){
 				var id = parentId + "_" + i;
 				var row = rows[i];
-				var result = buildRowHtml(config,id,parentId,row,currentLevel);
-				this.find("table").append(result);
-
+				
+				prevTrId = this.TreeGrid('drawDataTr',config,id,row,prevTrId,'dataTr' );
+				//递归画子树
 				if(row.children){
-					this.TreeGrid('drawDataRecursive', config,row.children,id, currentLevel+1);
+					prevTrId = this.TreeGrid('drawDataRecursive', config,id, row.children,appendPage);
 				}
 			}
+			if(appendPage){
+				var id = parentId + "_" + rows.length;
+				prevTrId = this.TreeGrid('drawDataTr',config,id,row,prevTrId,'paginationTr' );
+			}
+			return prevTrId;
+		},
+
+		//画tr  prevTrId 该行的前一行id
+		drawDataTr:function(config,id,row,prevTrId,trCls){
+
+			this.find('#'+prevTrId).after("<tr id="+id+" />");
+			var $tr = $('#'+id);
+			var pid = getParentId(id);
+			var currentLevel = getCurrentLevel(id);
+			$tr.attr('level',currentLevel);
+			$tr.attr('pid',pid );
+			$tr.attr('rowIndex',config.rownum++);
+			$tr.data('data',row);
+			$tr.addClass(trCls);
+			var openStatus = "N";
+			var display = "none";
+			var displayLevel = config.displayLevel;
+			if(currentLevel<displayLevel) openStatus = "Y";//级别<displayLevel的节点,都为展开状态
+			if(currentLevel<=displayLevel) display = ""; //级别<=displayLevel的节点,都要显示
+			
+			$tr.attr('openStatus',openStatus);
+			$tr.css('display',display);
+			
+			if(trCls=='dataTr'){
+				this.TreeGrid('drawDataTd',config,$tr);
+			}else if(trCls=='paginationTr'){
+				this.TreeGrid('drawPaginationTd',config,$tr);
+			}
+			
+			return id;
+		},
+
+		//画td
+		drawDataTd:function(config,$tr){
+			var treeColumnIndex = config.treeColumnIndex;
+			var columns = config.columns;
+			var row = $tr.data('data');
+			var trid = $tr.attr('id');
+			var currentLevel = $tr.attr('level');
+			var openStatus = $tr.attr('openStatus');
+			for(var j=0;j<columns.length;j++){
+				var col = columns[j];
+				$tr.append("<td />");
+				var $td = $tr.find('td:last');
+				$td.attr('align',(col.dataAlign || config.dataAlign) );
+				
+				//层次缩进
+				if(j==treeColumnIndex){
+					$td.css('text-indent',parseInt(config.indentation)*(currentLevel-1) );
+					$td.append('<span />');
+					var $img = $td.find('span');
+					$img.attr('trid',trid);
+					if(row.children){
+						$img.addClass('folder');
+						var nodeClass = (openStatus=="Y")? "nodeOpen" : "nodeClose";
+						$img.addClass(nodeClass);
+					}else{
+						$img.addClass('image_nohand');
+						$img.addClass('nodeLeaf');
+					}
+				}
+
+				$td.append( row[col.dataField] || "");
+
+			}
+		},
+
+		drawPaginationTd:function(config,$tr){
+			$tr.append("<td />");
+			var $td = $tr.find('td:last');
+			$td.addClass('pagination');
+			$td.attr('colspan',3);
+			$td.append("<span class='first'></span>");
+			$td.append("<span class='page'><input /></span>");
+			$td.append("<span class='next'></span>");
+			$td.append("<span class='last'></span>");
+			
 		},
 		
 		bindEvent:function(config){
@@ -192,14 +233,14 @@
 			}
 
 			//bind click to <tr>
-			$table.find("tr").live("click", function(){
+			$table.find("tr.dataTr").live("click", function(){
 				
 				$table.find("tr").removeClass("row_active");
 				$(this).addClass("row_active");
 				
 				var id = $(this).prop("id");
 				var rowIndex = $(this).attr("rowIndex");
-				var data = $(this).attr("data");
+				var data = $(this).data("data");
 
 				if(config.itemClick){
 					config.itemClick(id,rowIndex,data);
@@ -207,18 +248,19 @@
 			});
 
 			//bind click to image
-			$table.find("span[folder='Y']").live("click", function(){
+			$table.find("span.folder").live("click", function(){
 				var trid = $(this).attr("trid"); 
-				var isOpen = $table.find("#" + trid).attr("openStatus");
+				var $tr = $table.find("#" + trid);
+				var isOpen = $tr.attr("openStatus");
 				var statusAfterClick = (isOpen == "Y") ? "N" : "Y";//当前为打开状态则关闭
-				$table.find("#" + trid).attr("openStatus", statusAfterClick);
+				$tr.attr("openStatus", statusAfterClick);
 				
 				if(statusAfterClick == "N"){ //隐藏子节点
-					$table.find("#"+trid).find("span[folder='Y']").removeClass("nodeOpen").addClass("nodeClose");
+					$tr.find("span.folder").removeClass("nodeOpen").addClass("nodeClose");
 					$table.find("tr[id^=" + trid + "_]").css("display", "none");
 				}else{ //显示子节点
-					$table.find("#"+trid).find("span[folder='Y']").removeClass("nodeClose").addClass("nodeOpen");
-					$(this).TreeGrid("showNextLevelRecursive",config,$context,trid);
+					$tr.find("span.folder").removeClass("nodeClose").addClass("nodeOpen");
+					$context.TreeGrid("showNextLevelRecursive",config,trid);
 				}
 			});
 
@@ -228,49 +270,51 @@
 			});
 		},
 
-		showNextLevelRecursive:function(config,$context,trid){
-			var $table = $context.find("table");
-			//只有当前行处于打开状态才可以显示下一行
-			var isOpen = $table.find("#" + trid).attr("openStatus");
-			var currentLevel = parseInt($table.find("#" + trid).attr("level"));
+		showNextLevelRecursive:function(config,trid){
+			var $table = this.find("table");
 			
+			var $tr = $table.find("#" + trid);
+			var isOpen = $tr.attr("openStatus");
+			//只有当前行处于打开状态才可以显示下一行
 			if(isOpen == "Y"){
+				//找出所有trid的子行
 				var nextTrs = $table.find("tr[pid=" + trid + "]");
-				
-				if(config.delayLoad && nextTrs.length==0){
+				if(nextTrs.length>0){
+					for(var i=0;i<nextTrs.length;i++){
+						var next = $(nextTrs[i]);
+						next.css("display", "");
+						this.TreeGrid("showNextLevelRecursive",config,next.attr('id'));
+					}
+				}else if(config.delayLoad && nextTrs.length==0){
 					//延迟加载且当前没有数据
 					var rows = null;
 					if(config.onDelayLoadData){
-						var nodeData = JSON.parse($table.find("#" + trid).attr("data"));
-						rows = config.onDelayLoadData(nodeData);
+						//调用用户自定义的延迟加载获取数据
+						//rows = config.onDelayLoadData($tr.data("data"));
+						rows = [{name:'node5',id:'n5',children:[]}]
 					}
-					if(rows==null){
-						rows = remoteCall(config.remoteUrl,config.remoteRestricts);
-					}
-//					var rows = [{name: "节点6",code:"c6",isLeaf:false},
-//						{name: "节点7",code:"c7",isLeaf:true}];
-					this.TreeGrid('appendData', config,$table,rows,trid,currentLevel+1);
+					this.TreeGrid('appendData', config,$tr.attr('id'),rows);
 					
-				}else{//只有确定该行已经有子级(nextTrs.length>0)才可以循环展示
-					nextTrs.css("display", "");
-					for(var i=0;i<nextTrs.length;i++){
-						this.TreeGrid("showNextLevelRecursive",config,$context,nextTrs[i].id);
-					}
 				}
 			}
 		},
 		
-		//将数据添加在指定的parentId后面,每次添加的数据都会紧跟parentId,这里最好倒序添加数据
-		appendData:function(config,$context,rows,parentId,currentLevel){
+		
+		appendData:function(config,parentId,rows){
 			if(rows==null){
 				console.error("rows is null");
 				return;
 			}
-			for(var i=rows.length-1;i>=0;i--){
+			var prevTrId = parentId;
+			for(var i=0;i<rows.length;i++){
 				var id = parentId + "_" + i;
 				var row = rows[i];
-				var result = buildRowHtml(config,id,parentId,row,currentLevel,true);
-				$context.find("#"+parentId).after(result);
+				prevTrId = this.TreeGrid('drawDataTr',config,id,row,prevTrId,'dataTr' );
+				
+				var $tr = $('#'+id);
+				//点击 延迟加载的数据要立马显示
+				$tr.attr('openStatus','N');
+				$tr.css('display','');
 			}
 		}
 
@@ -295,7 +339,7 @@
 
 
 	$.fn.TreeGrid.defaults = {
-		
+		id:'T',
 		width:'100%',
 		headerAlign: 'center',
 		headerHeight: '25',
@@ -311,7 +355,9 @@
 		delayLoad:true,
 		remoteUrl:"",
 		remoteRestricts:"",
-		onDelayLoadData:function(data){console.log(data)}
+		onDelayLoadData:function(data){console.log(data)},
+
+		pagination:true
 	};
 
 

@@ -11,13 +11,22 @@
 	$(function(){
 		$("#testTreeGrid").TreeGrid({
 			width:"300px",
+			delayLoad:true,
 			columns:[
 				{headerText: "Name", dataField: "name", headerAlign: "left",dataAlign: "left",width: "100"},
 				{headerText: "id", dataField: "id", headerAlign: "center", width: "100"},
 				{headerText: "Customize", headerAlign: "center", dataAlign: "center", width: "50"}
 			],
-			remoteUrl:"/hill/TreeGrid/getData",
-			data:[{name:'node1',id:'n1',children:[{name:'node1-1',id:'n1-1'}]},{name:'node2',id:'n2'}]
+//			remoteUrl:"/hill/TreeGrid/getData",
+			data:[{name:'node1',id:'n1',children:[{
+						name:'node1-1',id:'n1-1',children:[{
+							name:'node1-1-1',id:'n1-1-1'
+						}]
+					},{
+						name:'node1-2',id:'n1-1'
+					}]},{
+					name:'node2',id:'n2',children:[]
+			}]
 		});
 		
 		function loadData(nodeData){
@@ -48,7 +57,15 @@
 <BODY>
 	<div id="testTreeGrid">
 	</div>
-	<div id="testTreeGridVV">
+	<!--
+	<div class='pagination'>
+		<span class='first'></span>
+		<span class='prev'></span>
+		<span class='page'><input /></span>
+		<span class='next'></span>
+		<span class='last'></span>
+		
 	</div>
+	-->
 </BODY>
 </HTML>
