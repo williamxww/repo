@@ -1,10 +1,34 @@
-body{
+
+/*对应整个容器*/
+.TreeGrid{
+	position: relative;
+	overflow:hidden;
 	font-size:11px;
 }
-.TreeGrid{
+
+/*遮罩容器*/
+.TreeGrid-inner{
+	position: relative;
+	overflow:hidden;
+	display:block;
+	width: 10000px;
+}
+
+.table-resize-proxy {
+	background: #aac5e7;
+	position: absolute;
+	width: 1px;
+	height: 10000px;
+	top: 0;
+	/*left 在js中动态指定*/
+	cursor: e-resize;
+	display: block;
+}
+
+.TreeGrid table{
 	border-collapse: collapse; 
 	font-size: 11px;
-	border: 1px solid #778899;
+	border1: 1px solid #778899;
 }
 
 .TreeGrid .header{
@@ -37,7 +61,7 @@ body{
 
 .TreeGrid .folder{
 	border: 0;
-	cursor:hand;
+	cursor:pointer;
 	align:absmiddle;
 }
 
@@ -51,9 +75,10 @@ body{
 	background:url(images/node_icons.png);
 	background-repeat:no-repeat;
 	/*截取图片*/
-	background-position:-49px -0px;
+	background-position:-49px 2px;
 	height:16px;
 	width:16px;
+	margin-right:2px;
 	/*span这种元素不能设置宽度,所以要改为inline-block*/
 	display:-moz-inline-box;
 	display:inline-block;
@@ -62,9 +87,10 @@ body{
 .TreeGrid .nodeClose{
 	background:url(images/node_icons.png);
 	background-repeat:no-repeat;
-	background-position:-33px -0px;
+	background-position:-33px 2px;
 	height:16px;
 	width:16px;
+	margin-right:2px;
 	display:-moz-inline-box;
 	display:inline-block;
 }
@@ -72,9 +98,10 @@ body{
 .TreeGrid .nodeLeaf{
 	background:url(images/leaf_icon.gif);
 	background-repeat:no-repeat;
-	background-position:-0px -0px;
+	background-position:-0px 0px;
 	height:16px;
 	width:16px;
+	margin-right:2px;
 	display:-moz-inline-box;
 	display:inline-block;
 }
@@ -85,6 +112,7 @@ body{
 	background-position:0px 3px;
 	height:16px;
 	width:16px;
+	cursor:pointer;
 	display:-moz-inline-box;
 	display:inline-block;
 }
@@ -95,6 +123,7 @@ body{
 	background-position:-16px 3px;
 	height:16px;
 	width:16px;
+	cursor:pointer;
 	display:-moz-inline-box;
 	display:inline-block;
 }
@@ -105,6 +134,7 @@ body{
 	background-position:-32px 3px;
 	height:16px;
 	width:16px;
+	cursor:pointer;
 	display:-moz-inline-box;
 	display:inline-block;
 }
@@ -115,15 +145,28 @@ body{
 	background-position:-48px 3px;
 	height:16px;
 	width:16px;
+	cursor:pointer;
 	display:-moz-inline-box;
 	display:inline-block;
+}
+
+/*按钮禁用效果*/
+.pagination .disabled{
+	cursor:auto;
+	-webkit-filter: grayscale(100%); 
+	-webkit-filter: grayscale(1); 
+	filter: grayscale(100%);
+	filter:gray;
 }
 
 .pagination .page input{
 	width:20px;
 	height:16px;
-	font-size:12px;
+	font-size:10px;
 	display:-moz-inline-box;
 	display:inline-block;
+	text-align:center;
 }
+
+
 
