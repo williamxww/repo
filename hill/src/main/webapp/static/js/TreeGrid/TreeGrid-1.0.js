@@ -59,6 +59,10 @@
 		createContainer:function(config){
 			var $context = this;
 			$context.css({width:config.width,height:config.height});
+			//先清除工作(可能之前有残留)
+			$context.find('.TreeGrid-inner').remove();
+			$context.removeClass('TreeGrid');
+			//正式构造
 			$context.addClass('TreeGrid');
 			//创建遮罩容器
 			$context.append('<div class="TreeGrid-inner"></div>');
@@ -84,6 +88,12 @@
 			$th.addClass('header');
 			$th.attr('height',config.headerHeight);
 			$th.attr('level',0);
+			
+			if(config.showCheckbox ){
+				//第一列要用来显示checkbox
+				$th.append("<td><input type='checkbox' /></td>");
+			}
+
 			var cols = config.columns;
 			for(i=0;i<cols.length;i++){
 				var col = cols[i];
@@ -255,11 +265,18 @@
 			var trid = $tr.attr('id');
 			var currentLevel = $tr.attr('level');
 			var openStatus = $tr.attr('openStatus');
+
+			if(config.showCheckbox ){
+				//第一列要用来显示checkbox
+				$tr.append("<td><input type='checkbox' /></td>");
+			}
+
 			for(var j=0;j<columns.length;j++){
 				var col = columns[j];
 				$tr.append("<td />");
 				var $td = $tr.find('td:last');
 				$td.attr('align',(col.dataAlign || config.dataAlign) );
+
 				
 				//层次缩进
 				if(j==treeColumnIndex){
@@ -300,7 +317,11 @@
 			//$td.css('border','none');
 
 			$td.addClass('pagination');
-			$td.attr('colspan',config.columns.length);
+			var colspan = config.columns.length;
+			if(config.showCheckbox){
+				colspan += 1;
+			}
+			$td.attr('colspan',colspan);
 			$td.append("<span class='first'></span>");
 			$td.append("<span class='prev'></span>");
 			$td.append("<span class='page'><input /></span>");
@@ -447,7 +468,7 @@
 
 			//对数据行增加悬浮样式,因为数据行有可能是动态增加的,因而采用如下写法
 			if(config.showHoverCss){
-				$context.find("tr.dataTr").live({
+				$context.find("tr.dataTr").die().live({
 					mouseenter:function(){
 						if($(this).hasClass("header")) return;
 						$(this).addClass("row_hover");
@@ -460,7 +481,7 @@
 			
 			var timer = null;//区分单双击
 			//bind click to <tr>
-			$context.find("tr.dataTr").live("click", function(){
+			$context.find("tr.dataTr").die().live("click", function(){
 				var $this = $(this);
 				$context.find("tr").removeClass("row_active");
 				$this.addClass("row_active");
@@ -476,7 +497,7 @@
 
 
 			//bind click to image
-			$context.find("span.folder").live("click", function(){
+			$context.find("span.folder").die().live("click", function(){
 				var trid = $(this).attr("trid"); 
 				var $tr = $context.find("#" + trid);
 				var isOpen = $tr.attr("openStatus");
@@ -561,6 +582,8 @@
 		rownum:0,
 		showHoverCss:true,
 		itemClick: function(id,data){},
+
+		showCheckbox:false,
 		
 		//remote props
 		requestUrl:"",

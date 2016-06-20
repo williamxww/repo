@@ -12,47 +12,19 @@
 		$("#testTreeGrid").TreeGrid({
 			width:"600px",
 			height:'500px',
+			showCheckbox:true,
 			columns:[
 				{headerText: "Name", dataField: "name", headerAlign: "left",dataAlign: "left",width: "200"},
 				{headerText: "text", dataField: "text", headerAlign: "center",width: "300",converter:handler}
 			],
 //			requestUrl:"/hill/TreeGrid/getData",
 			data:[{
+				name:'node1',text:'n1',children:[
+					{name:'node1-1',text:'n1-1'},
+					{name:'node1-2',text:'n1-2'}
+				]
+			},{
 				name:'node1',text:'n1'
-			},{
-				name:'node2',text:'n2',children:[{
-					name:'node2-1',text:'A'
-				},{
-					name:'node2-2',text:'A'
-				},{
-					name:'node2-3',text:'A'
-				},{
-					name:'node2-4',text:'A'
-				},{
-					name:'node2-5',text:'A'
-				},{
-					name:'node2-6',text:'A'
-				},{
-					name:'node2-7',text:'A'
-				}]
-			},{
-				name:'node3',text:'n3',children:[]
-			},{
-				name:'node4',text:'n4'
-			},{
-				name:'node5',text:'n5'
-			},{
-				name:'node6',text:'n6'
-			},{
-				name:'node7',text:'n7'
-			},{
-				name:'node8',text:'n8'
-			},{
-				name:'node9',text:'n9'
-			},{
-				name:'node10',text:'n10'
-			},{
-				name:'node11',text:'n11'
 			}]
 		});
 		
@@ -79,6 +51,8 @@
 		function handler(data){
 			return "<a href='http://www.baidu.com'>"+data+"</a>";
 		}
+
+		
 
 		
 
