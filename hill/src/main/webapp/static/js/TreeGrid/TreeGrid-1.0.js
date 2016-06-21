@@ -51,7 +51,8 @@
                 $this.TreeGrid('createContainer', config)
 					.TreeGrid('drawHeader', config)
 					.TreeGrid('drawData', config)
-					.TreeGrid('bindEvent', config);
+					.TreeGrid('bindEvent', config)
+					.TreeGrid('bindCheckboxEvent', config);
             });
 		},
 		
@@ -91,7 +92,7 @@
 			
 			if(config.showCheckbox ){
 				//第一列要用来显示checkbox
-				$th.append("<td><input type='checkbox' /></td>");
+				$th.append("<td><input type='checkbox' trid='"+id+"' /></td>");
 			}
 
 			var cols = config.columns;
@@ -269,6 +270,7 @@
 			if(config.showCheckbox ){
 				//第一列要用来显示checkbox
 				$tr.append("<td><input type='checkbox' /></td>");
+				$tr.find("input[type='checkbox']").attr('trid',trid);
 			}
 
 			for(var j=0;j<columns.length;j++){
@@ -514,6 +516,47 @@
 				//阻止事件冒泡
 				return false;
 			});
+
+			return this.each(function(){
+				
+			});
+		},
+		
+		//给checkbox绑定事件
+		bindCheckboxEvent:function(config){
+			if(!config.showCheckbox){
+				return;
+			}
+			var $context = this;
+			$("input[type='checkbox'][trid]").change(function(){
+				var $ck = $(this);
+				var checked = this.checked;
+				var trid = $ck.attr('trid');
+
+				checkRecursive(trid);
+				uncheckParentRecursive(trid);
+
+				//勾选或不勾选父节点，所有子节点跟着变化
+				function checkRecursive(pid){
+					var $trs = $context.find("tr[pid='"+pid+"']");
+					for( var i=0;i<$trs.length;i++ ){
+						$($trs[i]).find("input[type='checkbox'][trid]").attr('checked',checked);
+						checkRecursive($($trs[i]).attr('id'));
+					}
+				}
+
+				//取消勾选子节点父节点取消
+				function uncheckParentRecursive(id){
+					var $tr = $context.find('#'+id);
+					var pid = $tr.attr('pid');
+					if(!checked && pid!=undefined ){
+						var $ptr = $context.find('#'+pid);
+						$ptr.find("input[type='checkbox'][trid]").attr('checked',checked);
+						uncheckParentRecursive($ptr.attr('id'));
+					}
+				}
+				
+			});
 		},
 
 		//递归显示数据
@@ -549,6 +592,18 @@
 					
 				}
 			}
+		},
+		
+		//获取勾选上的节点数据
+		getCheckedRows:function(){
+			var $context = this;
+			var $cks = $context.find("input[type='checkbox'][trid]:checked");
+			var result = [];
+			for(var i=0;i<$cks.length;i++){
+				var trid = $($cks[i]).attr('trid');
+				result.push($('#'+trid).data());
+			}
+			return result;
 		}
 
 
