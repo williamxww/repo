@@ -13,6 +13,8 @@
 			width:"600px",
 			height:'500px',
 			showCheckbox:true,
+			delayLoad:true,
+			onDelayLoadData:function(data){return [{name:'node-r',text:'nr',children:[]}]},
 			columns:[
 				{headerText: "Name", dataField: "name", headerAlign: "left",dataAlign: "left",width: "200"},
 				{headerText: "text", dataField: "text", headerAlign: "center",width: "300",converter:handler}
@@ -21,13 +23,12 @@
 			data:[{
 				name:'node1',text:'n1',children:[
 					{name:'node1-1',text:'n1-1'},
-					{name:'node1-2',text:'n1-2',children:[
-						{name:'node1-1-1',text:'n1-1-1'}
-					]}
+					{name:'node1-2',text:'n1-2',children:[]}
 				]
 			},{
 				name:'node1',text:'n1'
-			}]
+			}],
+			itemClick:function(){console.log("itemclick");}
 		});
 		
 		function loadData(nodeData){
@@ -54,7 +55,16 @@
 			return "<a href='http://www.baidu.com'>"+data+"</a>";
 		}
 
-		
+		$('#btn1').click(function(){
+			
+			//var a = $("#showTree").is(":checked"); //true false
+			//var a = $("#showTree").attr("checked"); //undefined checked
+			//var a = $("#showTree").prop("checked"); //true false
+			//console.log(a);
+
+			//$("#showTree").attr('checked',true);
+			$("#showTree").prop('checked',false);
+		});
 		
 		
 
@@ -72,6 +82,7 @@
 
 <BODY>
 	<div id="testTreeGrid"></div>
-	<input type="button" value="aaa" onclick="getCk()" />
+	<input type="button" value="aaa" id="btn" onclick="getCk()"/>
+	<input type="checkbox" id="showTree" />
 </BODY>
 </HTML>

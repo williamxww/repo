@@ -528,11 +528,13 @@
 				return;
 			}
 			var $context = this;
-			$("input[type='checkbox'][trid]").change(function(){
+			$context.on('click',"input[type='checkbox'][trid]",function(event){
+				//阻止事件冒泡
+				event.stopPropagation();
 				var $ck = $(this);
 				var checked = this.checked;
 				var trid = $ck.attr('trid');
-
+				
 				checkRecursive(trid);
 				uncheckParentRecursive(trid);
 
@@ -555,7 +557,6 @@
 						uncheckParentRecursive($ptr.attr('id'));
 					}
 				}
-				
 			});
 		},
 
@@ -597,7 +598,8 @@
 		//获取勾选上的节点数据
 		getCheckedRows:function(){
 			var $context = this;
-			var $cks = $context.find("input[type='checkbox'][trid]:checked");
+			//注意排除表头
+			var $cks = $context.find("tr.dataTr input[type='checkbox'][trid]:checked");
 			var result = [];
 			for(var i=0;i<$cks.length;i++){
 				var trid = $($cks[i]).attr('trid');
