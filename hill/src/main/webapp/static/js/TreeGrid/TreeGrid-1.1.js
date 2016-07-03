@@ -50,38 +50,35 @@
 			 
 			return this.each(function() {
                 var $this = $(this);
-                $this.TreeGrid('createContainer',config)
-					.TreeGrid('drawHeader', config)
-					.TreeGrid('drawData', config)
-					.TreeGrid('bindEvent', config)
-					.TreeGrid('bindCheckboxEvent', config);
+                $this.TreeGrid('createContainer')
+					.TreeGrid('drawHeader')
+					.TreeGrid('drawData')
+					.TreeGrid('bindEvent')
+					.TreeGrid('bindCheckboxEvent');
 					
             });
 		},
-		//public config
-		config:function(){
+		
+		getConfig:function(){
 			var $context = this;
 			return $context.data('config');
 		},
 		
 		//创建容器
-		createContainer:function(config){
+		createContainer:function(){
 			var $context = this;
-			
+			var config = $context.data('config');
 			$context.css({width:config.width,height:config.height});
 			//先清除工作(可能之前有残留)
 			$context.find('.TreeGrid-inner').remove();
 			$context.removeClass('TreeGrid');
 			//正式构造
 			$context.addClass('TreeGrid');
-			//创建遮罩容器
+			//创建内部容器,该容器无限宽(css中10000px)，因而用户可以无休止拖动列
 			$context.append('<div class="TreeGrid-inner"></div>');
 			var $inner = $context.find('.TreeGrid-inner');
-			var id = config.id || "TreeGrid"+$.TreeGrid.COUNT++;
-			$inner.append("<table id='"+id+"' />");
-			var $table = $("#"+id);
-			$table.attr('cellspacing',0);
-			$table.attr('cellpadding',0);
+			var id = config.id || "T"+$.TreeGrid.COUNT++;
+			$inner.append("<table id='"+id+"' cellspacing=0 cellpadding=0 />");
 			
 			
 			//对每一个符合条件的jquery对象(this即选择的div),对其执行以下函数
@@ -91,46 +88,51 @@
 		},
 		
 		//画表头
-		drawHeader:function(config){
-			var id = config.id+'H';
-			$(this).find("table").append("<tr id='"+id+"' />");
-			var $th = $('#'+id);
-			$th.addClass('header');
-			$th.attr('height',config.headerHeight);
-			$th.attr('level',0);
+		drawHeader:function(){
+			var $context = this;
+			var config = $context.data('config');
+			var $table = $context.find("table");
+			var headerId = $table.attr('id')+'H';
+
+			$table.append("<tr id='"+headerId+"' />");
+			var $tr = $table.find('#'+headerId);
+			$tr.addClass('header');
+			$tr.attr('height',config.headerHeight);
+			$tr.attr('level',0);
 			
 			if(config.showCheckbox ){
 				//第一列要用来显示checkbox
-				$th.append("<td><input type='checkbox' trid='"+id+"' /></td>");
+				$tr.append("<td><input type='checkbox' trid='"+headerId+"' /></td>");
 			}
 
 			var cols = config.columns;
 			for(i=0;i<cols.length;i++){
 				var col = cols[i];
-				$th.append("<td />");
-				var $td = $th.find('td:last');
+				$tr.append("<td />");
+				var $td = $tr.find('td:last');
 				$td.attr('align',(col.headerAlign || config.headerAlign) );
 				$td.css('width',(col.width || "") );
 				$td.append(col.headerText || "");
 			}
 			return this.each(function(){
 				if(config.columnWidthResizable){
-					$(this).TreeGrid('resizeHeaderWidth',config,$th);
+					$(this).TreeGrid('resizeHeaderWidth',$tr);
 				}
 				
 			});
 		},
 		
-		//改变列宽
-		resizeHeaderWidth:function(config,$th){
+		//表头拖动改变列宽
+		resizeHeaderWidth:function($tr){
 			var $context = this;
+			var config = $context.data('config');
 			var resizable = false;//当前位置是可以开始改变宽度的
 			var resizing = false;//表明正在拖动改变大小
 			var begin = 0;
 			var $resizeTarget = null;
 
 			//当鼠标滑动到边界，指针发生改变
-			$th.mousemove(function(e){
+			$tr.mousemove(function(e){
 				var $target = $(e.target);
 				var x = e.pageX;//鼠标位置的左边距
 				var offset = $target.offset();
@@ -147,7 +149,7 @@
 			});
 			
 			//触发
-			$th.mousedown(function(e){
+			$tr.mousedown(function(e){
 				
 				if(resizable){
 					$context.addClass('noSelect');//拖动过程中不让选中
@@ -189,8 +191,9 @@
 		},
 
 		//画数据
-		drawData : function(config){
+		drawData : function(){
 			var $context = this;
+			var config = $context.data('config');
 			var rows = [];
 			//本地有数据用本地的，没有则远程获取
 			if(config.data){
@@ -202,18 +205,18 @@
 			}
 			
 			//表头即为整体的根
-			var rootId = config.id+'H';
-			//表头中存放了所有数据，为了保持规律：在所有的父节点中都能找到子节点的数据
-			$context.find('#'+rootId).data('data',{children:rows});
+			var headerId = $context.find('table tr.header').attr('id');
 			return $context.each(function(){
-				$(this).TreeGrid('drawDataRecursive', config,rootId,rows,config.displayLevel);
+				$(this).TreeGrid('drawDataRecursive', headerId,rows,config.displayLevel);
 			});
 		},
 		
 		//递归将rows画在parentId下  displayLevel级别之前的都要显示
-		drawDataRecursive:function(config,parentId,rows,displayLevel){
+		drawDataRecursive:function(parentId,rows,displayLevel){
 			var $context = this;
-
+			var config = $context.data('config');
+			
+			//画行时,会紧接着行prevTrId画新tr
 			var prevTrId = parentId;
 			
 			var count = rows.length;
@@ -225,16 +228,20 @@
 				var id = parentId + "_" + i;
 				var row = rows[i];
 				
-				prevTrId = $context.TreeGrid('drawTableTr',config,id,row,prevTrId,'dataTr',displayLevel );
+				prevTrId = $context.TreeGrid('drawTableTr',id,row,prevTrId,'dataTr',displayLevel );
 				//递归画子树
 				if(row.children && row.children.length>0 ){
-					prevTrId = $context.TreeGrid('drawDataRecursive', config,id, row.children,displayLevel);
+					prevTrId = $context.TreeGrid('drawDataRecursive', id, row.children,displayLevel);
 				}
 			}
-			//分页器 只有多于一页的数据才会画分页器
-			if(config.pagination && $('#'+parentId).data('data').children.length > config.pageNum ){
+			//parentId节点对应的子节点还没有分页器且子节点数据>1页,才画分页器
+			var $parentTr = $('#'+parentId);
+			var paginationExists = $parentTr.data('paginationExists');
+			if(config.pagination && !paginationExists &&rows.length>config.pageNum ){
 				var id = parentId + "_" + count;
-				prevTrId = $context.TreeGrid('drawTableTr',config,id,row,prevTrId,'paginationTr',displayLevel );
+				//分页器上保存着所有子节点数据
+				prevTrId = $context.TreeGrid('drawTableTr',id,rows,prevTrId,'paginationTr',displayLevel);
+				$parentTr.data('paginationExists',true);//表明该节点的children有分页器了
 			}
 			return prevTrId;
 		},
@@ -242,8 +249,9 @@
 		
 
 		//画tr  prevTrId:该行的前一行id;  displayLevel:该级之前的节点都要显示
-		drawTableTr:function(config,id,row,prevTrId,trCls,displayLevel){
+		drawTableTr:function(id,row,prevTrId,trCls,displayLevel){
 			var $context = this;
+			var config = $context.data('config');
 			$context.find('#'+prevTrId).after("<tr id="+id+" />");
 			var $tr = $('#'+id);
 			var pid = getParentId(id);
@@ -262,17 +270,18 @@
 			$tr.css('display',display);
 			
 			if(trCls=='dataTr'){
-				$context.TreeGrid('drawDataTd',config,$tr);
+				$context.TreeGrid('drawDataTd',$tr);
 			}else if(trCls=='paginationTr'){
-				$context.TreeGrid('drawPaginationTd',config,$tr);
+				$context.TreeGrid('drawPaginationTd',$tr);
 			}
 			
 			return id;
 		},
 
 		//画td
-		drawDataTd:function(config,$tr){
+		drawDataTd:function($tr){
 			var $context = this;
+			var config = $context.data('config');
 			var treeColumnIndex = config.treeColumnIndex;
 			var columns = config.columns;
 			var row = $tr.data('data');
@@ -283,7 +292,7 @@
 			if(config.showCheckbox ){
 				//第一列要用来显示checkbox
 				//根据父行来判断子行是否选中
-				var parentChecked = $context.TreeGrid('getChecked',$tr.attr('pid'));
+				var parentChecked = $context.TreeGrid('isChecked',$tr.attr('pid'));
 				$tr.append("<td><input type='checkbox' /></td>");
 				$tr.find("input[type='checkbox']").attr('trid',trid).attr('checked',parentChecked);
 			}
@@ -314,8 +323,8 @@
 				
 				var displayData = row[col.dataField] || "";
 				//该字段有转换器
-				if(col.converter){
-					displayData = col.converter.call(this,displayData);
+				if(col.formatter){
+					displayData = col.formatter.call(this,displayData);
 				}
 				$td.append(displayData);
 
@@ -323,9 +332,10 @@
 		},
 
 		//画分页器
-		drawPaginationTd:function(config,$tr){
+		drawPaginationTd:function($tr){
+			var $context = this;
+			var config = $context.data('config');
 			var level = parseInt( $tr.attr('level') );
-			
 			
 			$tr.append("<td />");
 			var $td = $tr.find('td:last');
@@ -341,46 +351,58 @@
 			$td.attr('colspan',colspan);
 			$td.append("<span class='first'></span>");
 			$td.append("<span class='prev'></span>");
-			$td.append("<span class='page'><input /></span>");
+			$td.append("<span class='page'><input value=1 /></span>");
 			$td.append("/<span class='pageCount'></span>");
 			$td.append("<span class='next'></span>");
 			$td.append("<span class='last'></span>");
-			this.TreeGrid('bindPaginationEvent',config,$tr);
+			this.TreeGrid('bindPaginationEvent',$tr);
 		},
 
 		//用rows重画parentId下面的数据
-		reloadData:function(config,parentId,rows){
+		reloadData:function(parentId,rows){
 			var $context = this;
+			var config = $context.data('config');
 			var parentLevel = $context.find('#'+parentId).attr('level');
-			var currentLevel = parseInt(parentLevel)+1;
-			//删除所有子项
-			$context.TreeGrid('deleteDataRecursive',config,parentId);
-			//重画所有子项
-			$context.TreeGrid('drawDataRecursive', config,parentId,rows,currentLevel);
+			var displayLevel = parseInt(parentLevel)+1;
+			//删除数据子项
+			$context.TreeGrid('deleteDataRecursive',parentId);
+			//重画数据子项
+			$context.TreeGrid('drawDataRecursive',parentId,rows,displayLevel);
 		},
 		
 		//递归删除parentId的所有子项
-		deleteDataRecursive:function(config,parentId){
+		deleteDataRecursive:function(parentId){
 			var $context = this;
-			$context.TreeGrid('markDeleteTr',config,parentId);
+			var config = $context.data('config');
+			//注意：parentId节点下的分页器是没有删除的
+			var dataTrs = $context.find("tr.dataTr[pid="+ parentId +"]");
+			for(var i=0;i<dataTrs.length;i++){
+				//将数据行及其子项标记为删除
+				$context.TreeGrid('markDeleteTr',$(dataTrs[i]).attr('id'));
+			}
+			//删除
 			$context.find('.deleteTr').remove();
 		},
 		
-		//将所有需要删除的行标记出
-		markDeleteTr:function(config,parentId){
+		//将id对应行及其子项（包括分页器）标记为删除
+		markDeleteTr:function(id){
 			var $context = this;
-			var $trs = $context.find("tr[pid="+ parentId +"]");
+			var config = $context.data('config');
+			var $tr = $context.find("#"+id);
+			$tr.addClass('deleteTr');
+			var $children = $context.find("tr[pid="+ id +"]");
 			
-			for(var i=0; i<$trs.length;i++){
-				var $tr = $($trs[i]);
-				$tr.addClass('deleteTr');
-				$context.TreeGrid('markDeleteTr',config,$tr.attr('id'));
+			for(var i=0; i<$children.length;i++){
+				var $child = $($children[i]);
+				$child.addClass('deleteTr');
+				$context.TreeGrid('markDeleteTr',$child.attr('id'));
 			}
 		},
 		
 		//子节点分页事件
-		bindPaginationEvent:function(config,$tr){
+		bindPaginationEvent:function($tr){
 			var $context = this;
+			var config = $context.data('config');
 			var pid = $tr.attr('pid');
 			var $parent = $context.find('#'+pid)
 
@@ -391,62 +413,43 @@
 			var $next = $tr.find('span.next');
 			var $last = $tr.find('span.last');
 			
-			//从父节点上获取子节点的当前页
-			var currentPage = $parent.data('currentPage');
-			if(currentPage == undefined ){
-				currentPage = 1;
-			}
-
-			//从父节点上获取所有子节点
-			var allDatas = $parent.data('data').children;
+			
+			var currentPage = parseInt($page.val());
+			
+			var allDatas = $tr.data('data');
 			var pageNum = config.pageNum;
 			var totalCount = allDatas.length;
 			var pageCount = Math.ceil( totalCount/pageNum );
-			$page.val(currentPage);
 			$pageCount.text(pageCount);
+			refreshPagerState(currentPage,pageCount);
 			
-			//给分页器加禁止的样式
-			if(currentPage<=1){
-				$first.addClass('disabled');
-				$prev.addClass('disabled');
-			}
-			if(currentPage>=pageCount){
-				$next.addClass('disabled');
-				$last.addClass('disabled');
-			}
 
 			$prev.click(function(){
 				if(currentPage<=1){
 					return;
 				}
-				//将子页面 页码存放于父节点
-				$parent.data('currentPage',currentPage-1);
-				$context.TreeGrid('reloadData',config,pid,getPageContent(currentPage-1) );
-				
+				gotoPage(currentPage-1);
 			});
 
 			$next.click(function(){
 				if(currentPage>=pageCount){
 					return;
 				}
-				$parent.data('currentPage',currentPage+1);
-				$context.TreeGrid('reloadData',config,pid,getPageContent(currentPage+1) );
+				gotoPage(currentPage+1);
 			});
 
 			$first.click(function(){
 				if(currentPage<=1){
 					return;
 				}
-				$parent.data('currentPage',1);
-				$context.TreeGrid('reloadData',config,pid,getPageContent(1) );			
+				gotoPage(1);
 			});
 
 			$last.click(function(){
 				if(currentPage>=pageCount){
 					return;
 				}
-				$parent.data('currentPage',pageCount);
-				$context.TreeGrid('reloadData',config,pid,getPageContent(pageCount) );				
+				gotoPage(pageCount);
 			});
 
 			$page.change(function(){
@@ -462,10 +465,15 @@
 				}else if(index<1){
 					index = 1;
 				}
-				$parent.data('currentPage',index);
-				$context.TreeGrid('reloadData',config,pid,getPageContent(index) );				
+				gotoPage(index);
 			});
-
+			
+			function gotoPage(index){
+				currentPage = index;
+				$page.val(index);
+				$context.TreeGrid('reloadData',pid,getPageContent(index) );	
+				refreshPagerState(index,pageCount);
+			}
 
 			function getPageContent(index){
 				var rows = [];
@@ -476,13 +484,29 @@
 				}
 				return rows;
 			}
+
+			function refreshPagerState(currentPage,pageCount){
+				$first.removeClass('disabled');
+				$prev.removeClass('disabled');
+				$next.removeClass('disabled');
+				$last.removeClass('disabled');
+				//给分页器加禁止的样式
+				if(currentPage<=1){
+					$first.addClass('disabled');
+					$prev.addClass('disabled');
+				}
+				if(currentPage>=pageCount){
+					$next.addClass('disabled');
+					$last.addClass('disabled');
+				}
+			}
 		},
+
 		
 
-		bindEvent:function(config){
-			
+		bindEvent:function(){
 			var $context = this;
-
+			var config = $context.data('config');
 			//对数据行增加悬浮样式,因为数据行有可能是动态增加的,因而采用如下写法
 			if(config.showHoverCss){
 				$context.find("tr.dataTr").die().live({
@@ -509,7 +533,7 @@
 				if(config.autoChecked){
 					//全部取消
 					$context.find("input[type='checkbox'][trid]").attr('checked',false);
-					$context.TreeGrid('toggleCheckRecursive',config,id,true);
+					$context.TreeGrid('toggleCheckRecursive',id,true);
 				}
 
 				if(config.itemClick){
@@ -532,7 +556,7 @@
 					$context.find("tr[id^=" + trid + "_]").css("display", "none");
 				}else{ //显示子节点
 					$tr.find("span.folder").removeClass("nodeClose").addClass("nodeOpen");
-					$context.TreeGrid("showNextLevelRecursive",config,trid);
+					$context.TreeGrid("showNextLevelRecursive",trid);
 				}
 				//阻止事件冒泡
 				return false;
@@ -544,11 +568,13 @@
 		},
 		
 		//给checkbox绑定事件
-		bindCheckboxEvent:function(config){
+		bindCheckboxEvent:function(){
+			var $context = this;
+			var config = $context.data('config');
 			if(!config.showCheckbox){
 				return;
 			}
-			var $context = this;
+			
 			$context.on('click',"input[type='checkbox'][trid]",function(event){
 				//阻止事件冒泡
 				event.stopPropagation();
@@ -556,25 +582,27 @@
 				var checked = this.checked;
 				var trid = $ck.attr('trid');
 				
-				$context.TreeGrid('toggleCheckRecursive',config,trid,checked);
-				$context.TreeGrid('uncheckParentRecursive',config,trid,checked);
+				$context.TreeGrid('toggleCheckRecursive',trid,checked);
+				$context.TreeGrid('uncheckParentRecursive',trid,checked);
 			});
 		},
 
 		//勾选或不勾选父节点，所有子节点跟着变化
-		toggleCheckRecursive:function(config,id,status){
+		toggleCheckRecursive:function(id,status){
 			var $context = this;
+			var config = $context.data('config');
 			//改变当前行的状态
 			$context.find('#'+id).find("input[type='checkbox'][trid]").attr('checked',status);
 			//递归处理子行
 			var $trs = $context.find("tr[pid='"+id+"']");
 			for( var i=0;i<$trs.length;i++ ){
-				$context.TreeGrid('toggleCheckRecursive',config, $($trs[i]).attr('id'),status );
+				$context.TreeGrid('toggleCheckRecursive', $($trs[i]).attr('id'),status );
 			}
 		},
 		//取消勾选子节点,父节点取消
-		uncheckParentRecursive:function(config,id,status){
+		uncheckParentRecursive:function(id,status){
 			var $context = this;
+			var config = $context.data('config');
 			var $tr = $context.find('#'+id);
 			var pid = $tr.attr('pid');
 			if(!status && pid!=undefined ){
@@ -585,7 +613,7 @@
 		},
 		
 		//该行是否选中
-		getChecked:function(trid){
+		isChecked:function(trid){
 			var $context = this;
 			var $tr = $context.find('#'+trid);
 			if($tr == undefined ){
@@ -595,9 +623,9 @@
 		},
 
 		//递归显示数据
-		showNextLevelRecursive:function(config,parentId){
+		showNextLevelRecursive:function(parentId){
 			var $context = this;
-			
+			var config = $context.data('config');
 			var $parentTr = $context.find("#" + parentId);
 			var isOpen = $parentTr.attr("openStatus");
 			//只有当前行处于打开状态才可以显示下一行
@@ -608,14 +636,14 @@
 					for(var i=0;i<nextTrs.length;i++){
 						var next = $(nextTrs[i]);
 						next.css("display", "");
-						this.TreeGrid("showNextLevelRecursive",config,next.attr('id'));
+						this.TreeGrid("showNextLevelRecursive",next.attr('id'));
 					}
 				}else if(config.delayLoad && nextTrs.length==0){
 					//延迟加载且当前没有数据
 					var rows = [];
 					if(config.onDelayLoadData){
 						//显示loading样式
-						$context.TreeGrid('showLoading',config);
+						$context.TreeGrid('showLoading');
 						//调用用户自定义的延迟加载获取数据
 						rows = config.onDelayLoadData($parentTr.data("data"));
 						$context.find('.loading').remove();
@@ -623,17 +651,18 @@
 							console.error('onDelayLoadData get nothing from remote');
 							return;
 						}
-						$parentTr.data('data').children = rows;
+						
 					}
-					var currentLevel = parseInt($parentTr.attr('level'))+1;
-					$context.TreeGrid('drawDataRecursive', config,parentId,rows,currentLevel );
+					var displayLevel = parseInt($parentTr.attr('level'))+1;
+					$context.TreeGrid('drawDataRecursive',parentId,rows,displayLevel );
 					
 				}
 			}
 		},
 
-		showLoading:function(config){
+		showLoading:function(){
 			var $context = this;
+			var config = $context.data('config');
 			$context.append('<div class="loading">loading...</div>');
 			var $loading = $context.find('.loading');
 			var containerWidth = $context.outerWidth();
@@ -652,7 +681,7 @@
 			var result = [];
 			for(var i=0;i<$cks.length;i++){
 				var trid = $($cks[i]).attr('trid');
-				result.push($('#'+trid).data());
+				result.push($('#'+trid).data('data'));
 			}
 			return result;
 		}
@@ -677,7 +706,6 @@
 
 
 	$.fn.TreeGrid.defaults = {
-		id:'T',
 		width:'100%',
 		headerAlign: 'center',
 		headerHeight: '25',

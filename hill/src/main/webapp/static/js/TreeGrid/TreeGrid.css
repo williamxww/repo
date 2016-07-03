@@ -14,6 +14,7 @@
 	width: 10000px;
 }
 
+/*列宽改变时的辅助线*/
 .table-resize-proxy {
 	background: #aac5e7;
 	position: absolute;
@@ -35,6 +36,7 @@
 	background-color: #87CEEB;
 	font-size: 11px;
 	font-weight: 600;
+	
 }
 
 .TreeGrid td{
@@ -168,5 +170,24 @@
 	text-align:center;
 }
 
+.TreeGrid .loading{
+	position:absolute;
+	top:30px;
+	width:auto;
+	height:16px;
+	padding:2 0 0 20px;
+	color:#000;
+	background:#fff url(images/loading.gif) no-repeat scroll;
+	opacity:0.6;
+	filter:alpha(opacity=60);
+}
+
+.noSelect{	
+	-webkit-user-select:none;/*chrome 不能选中*/
+	-moz-user-select:none;/*firefox*/
+	-ms-user-select: none;   /*IE10*/
+	-khtml-user-select: none; /*早期浏览器*/
+	user-select: none;
+}
 
 
