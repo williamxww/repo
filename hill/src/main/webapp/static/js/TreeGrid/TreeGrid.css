@@ -3,7 +3,8 @@
 .TreeGrid{
 	position: relative;
 	overflow:hidden;
-	font-size:11px;
+	font-size:12px;
+	font-family: '宋体',courier New,arial, Times, Serif;
 }
 
 /*遮罩容器*/
@@ -27,14 +28,14 @@
 }
 
 .TreeGrid table{
-	border-collapse: collapse; 
-	font-size: 11px;
-	border1: 1px solid #778899;
+	border-collapse: collapse;
+	table-layout:fixed;
+	font-size:13px;
 }
 
 .TreeGrid .header{
 	background-color: #87CEEB;
-	font-size: 11px;
+	font-size: 16px;
 	font-weight: 600;
 	
 }
@@ -42,6 +43,10 @@
 .TreeGrid td{
 	border: 1px solid #E6E6FA;
 	padding: 4px 3px 2px 3px;
+	white-space:nowrap;
+	overflow:hidden;
+	word-break:keep-all;
+	text-overflow:ellipsis
 }
 
 .TreeGrid a{

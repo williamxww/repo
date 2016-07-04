@@ -79,7 +79,7 @@
 			var $inner = $context.find('.TreeGrid-inner');
 			var id = config.id || "T"+$.TreeGrid.COUNT++;
 			$inner.append("<table id='"+id+"' cellspacing=0 cellpadding=0 />");
-			
+			$inner.find('table').css('width',config.width);
 			
 			//对每一个符合条件的jquery对象(this即选择的div),对其执行以下函数
 			return $context.each(function(){
@@ -102,7 +102,7 @@
 			
 			if(config.showCheckbox ){
 				//第一列要用来显示checkbox
-				$tr.append("<td><input type='checkbox' trid='"+headerId+"' /></td>");
+				$tr.append("<td width='20px' ><input type='checkbox' trid='"+headerId+"' /></td>");
 			}
 
 			var cols = config.columns;
@@ -324,7 +324,7 @@
 				var displayData = row[col.dataField] || "";
 				//该字段有转换器
 				if(col.formatter){
-					displayData = col.formatter.call(this,displayData);
+					displayData = col.formatter.call(this,displayData,row);
 				}
 				$td.append(displayData);
 
