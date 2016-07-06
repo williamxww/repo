@@ -507,21 +507,22 @@
 		bindEvent:function(){
 			var $context = this;
 			var config = $context.data('config');
-			//对数据行增加悬浮样式,因为数据行有可能是动态增加的,因而采用如下写法
+			$context.die();//先清除该对象上的事件
+
+			//以下事件都是动态绑定的
 			if(config.showHoverCss){
-				$context.find("tr.dataTr").die().live({
-					mouseenter:function(){
+				$context.on('mouseover mouseout','tr.dataTr',function(event){
+					if(event.type=='mouseover'){
 						if($(this).hasClass("header")) return;
 						$(this).addClass("row_hover");
-					},
-					mouseleave:function(){
+					}else if(event.type=='mouseout'){
 						$(this).removeClass("row_hover");
 					}
 				});
 			}
 			
 			//bind click to <tr>
-			$context.find("tr.dataTr").die().live("click", function(){
+			$context.on('click','tr.dataTr', function(){
 				var $this = $(this);
 				$context.find("tr").removeClass("row_active");
 				$this.addClass("row_active");
@@ -544,7 +545,7 @@
 
 
 			//bind click to image
-			$context.find("span.folder").die().live("click", function(){
+			$context.on("click","span.folder", function(){
 				var trid = $(this).attr("trid"); 
 				var $tr = $context.find("#" + trid);
 				var isOpen = $tr.attr("openStatus");
@@ -714,7 +715,7 @@
 		displayLevel:1,//页面默认看到所有的一级节点
 		treeColumnIndex:0,//默认第0列是树
 		rownum:0,
-		showHoverCss:true,
+		showHoverCss:false,
 		itemClick: function(id,data){},
 
 		showCheckbox:false,
