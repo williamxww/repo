@@ -321,7 +321,7 @@
 					}
 				}
 				
-				var displayData = row[col.dataField] || "";
+				var displayData = row[col.dataField];
 				//该字段有转换器
 				if(col.formatter){
 					displayData = col.formatter.call(this,displayData,row);

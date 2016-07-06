@@ -13,14 +13,16 @@
 			width:"600px",
 			showCheckbox:true,
 			delayLoad:true,
+
 			onDelayLoadData:function(data){return [{name:'node-r',text:'nr',children:[]}]},
 			columns:[
-				{headerText: "Name", dataField: "name", headerAlign: "left",dataAlign: "left",width: "200",formatter:handleName},
-				{headerText: "text", dataField: "text", headerAlign: "center",width: "300",formatter:handler}
+				{headerText: "Name", dataField: "name", headerAlign: "center",dataAlign: "left",width: "200",formatter:handleName},
+				{headerText: "text", dataField: "text", headerAlign: "center"}
 			],
-//			requestUrl:"/hill/TreeGrid/getData",
+			//requestUrl:"/hill/TreeGrid/getData",//远程加载时初始化数据
+			//requestParam:{parentPath:''},
 			data:[{
-				name:'node1',text:'n1',children:[
+				name:'node1',text:0,children:[
 					{name:'中国',text:'n1-1',children:[
 						{name:'中国',text:'文字'},
 						{name:'node1-1-1',text:'a'},
@@ -46,6 +48,7 @@
 					{name:'node1-10',text:'n1-10'},
 					{name:'node1-11',text:'n1-11'},
 					{name:'node1-12',text:'n1-12'},
+					//有children但是为[]就会触发延迟加载，获取全程数据
 					{name:'node1-13',text:'n1-13',children:[]}
 				]
 			},{
@@ -54,45 +57,11 @@
 			itemClick:function(){console.log("itemclick");}
 		});
 		
-		function loadData(nodeData){
-			var jsonData = null;
-			$.ajax({
-				type:'POST',
-				data:{
-					name:nodeData.name
-				},
-				async:false,
-				url:"/hill/TreeGrid/getData",
-				success:function(data,success){
-					if(success){
-						jsonData = eval('('+data+')');
-					}else{
-						console.error('fail to call '+url);
-					}
-				}
-			});
-			return jsonData;
-		}
 
 		function handleName(value){
+			//使其具有悬浮效果
 			return "<span title='"+value+"'>"+value+"</span>";
 		}
-
-		function handler(data){
-			return "<a href='http://www.baidu.com'>"+data+"</a>";
-		}
-
-
-//		$("#aaa").TreeGrid({
-//			width:"600px",
-//			columns:[
-//				{headerText: "Name", dataField: "name"},
-//				{headerText: "text", dataField: "text"}
-//			],
-//			data:[{
-//				name:'node1',text:'n1'
-//			}]
-//		});
 
 	});
 
@@ -106,7 +75,6 @@
 
 <BODY>
 	<div id="testTreeGrid" class='test'></div>
-	<div id="aaa" class='test'></div>
 	<input type="button" value="GET-CHECKED-VAL" id="btn" onclick="getCk()"/>
 
 </BODY>
