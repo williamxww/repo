@@ -1,4 +1,4 @@
-package hadoop.kafka;
+package common.kafka;
 
 import java.util.HashMap;
 import java.util.List;

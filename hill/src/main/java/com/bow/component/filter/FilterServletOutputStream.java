@@ -6,12 +6,9 @@ import java.io.OutputStream;
 
 import javax.servlet.ServletOutputStream;
 
-import org.apache.coyote.http11.upgrade.servlet31.WriteListener;
-
 public class FilterServletOutputStream extends ServletOutputStream {
 
   private DataOutputStream stream;
-  private WriteListener writeListener;
 
   public FilterServletOutputStream(OutputStream output) {
     stream = new DataOutputStream(output);
@@ -29,9 +26,6 @@ public class FilterServletOutputStream extends ServletOutputStream {
     stream.write(b, off, len);
   }
   
-  public void setWriteListener(WriteListener writeListener) {
-    this.writeListener =  writeListener;
-  }
 
   public boolean isReady() {
     return true;

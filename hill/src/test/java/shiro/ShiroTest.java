@@ -4,7 +4,7 @@
  * all rights reserved by Hill team
  * @version v1.3  
  */ 
-package environment;
+package shiro;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;

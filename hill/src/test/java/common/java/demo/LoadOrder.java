@@ -4,7 +4,7 @@
  * all rights reserved by Hill team
  * @version v1.3  
  */ 
-package environment;
+package common.java.demo;
 
 /**
  * 结果：先加载 再初始化； 先父类再子类；  先在普通代码块中变量初始化，再构造函数中进行赋值

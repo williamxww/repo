@@ -1,4 +1,4 @@
-package hadoop.kafka;
+package common.kafka;
 
 import java.util.Date;
 import java.util.Properties;

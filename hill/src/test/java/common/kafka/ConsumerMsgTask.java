@@ -1,4 +1,4 @@
-package hadoop.kafka;
+package common.kafka;
 
 import kafka.consumer.ConsumerIterator;
 import kafka.consumer.KafkaStream;

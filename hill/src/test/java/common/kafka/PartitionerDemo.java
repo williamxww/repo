@@ -1,4 +1,4 @@
-package hadoop.kafka;
+package common.kafka;
 
 import kafka.producer.Partitioner;
 import kafka.utils.VerifiableProperties;

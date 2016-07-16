@@ -6,15 +6,8 @@
  */ 
 package shiro;
 
-import java.util.Date;
-
 import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.session.mgt.quartz.QuartzSessionValidationJob;
 import org.junit.Test;
-import org.quartz.JobDetail;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.quartz.TriggerUtils;
 
 /**
  * @ClassName: PermissionTest
@@ -44,22 +37,6 @@ public class PermissionTest extends ShiroBaseTest {
         OperationPermission operation = (OperationPermission) context.getBean("operationPermission");
         operation.addUser();
         subject.logout();
-    }
-
-    // @Test
-    public void testScheduleJob() {
-        JobDetail job = new JobDetail("sessionJob", "Jobs", QuartzSessionValidationJob.class);
-        try {
-            scheduler.start();
-
-            Trigger trigger = TriggerUtils.makeSecondlyTrigger(10);
-            trigger.setStartTime(new Date());
-            trigger.setName("trigger");
-            scheduler.scheduleJob(job, trigger);
-
-        } catch (SchedulerException e) {
-            e.printStackTrace();
-        }
     }
 
 }
