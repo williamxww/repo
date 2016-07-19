@@ -10,7 +10,7 @@ package common.java;
  * @ClassName: Account
  * @Description:
  * @author ViVi
- * @date 2015年8月9日 下午3:19:49
+ * @date 2015年8月9日 下午3:19:49 test
  */
 
 public class Account {
